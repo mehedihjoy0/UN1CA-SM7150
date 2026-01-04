@@ -18,9 +18,6 @@
 /vendor/etc/midas/SRIBMidas_aiDEBLUR_V140_FP32\.tflite u:object_r:vendor_configs_file:s0
 /vendor/etc/midas/SRIBMidas_aiMOIREREMOVE_Coarse_V900_FP32\.caffemodel u:object_r:vendor_configs_file:s0
 /vendor/etc/midas/SRIBMidas_aiMOIREREMOVE_Fine_V900_FP32\.caffemodel u:object_r:vendor_configs_file:s0
-/vendor/etc/midas/SRIBMidas_aiUPSCALER_2X_LITE_V100_INT8\.tflite u:object_r:vendor_configs_file:s0
-/vendor/etc/midas/SRIBMidas_aiUPSCALER_3X_LITE_V100_INT8\.tflite u:object_r:vendor_configs_file:s0
-/vendor/etc/midas/SRIBMidas_aiUPSCALER_4X_LITE_V100_INT8\.tflite u:object_r:vendor_configs_file:s0
 /vendor/etc/midas/midas_config\.json u:object_r:vendor_configs_file:s0
 /vendor/etc/midas/SRIBMidas_aiUPSCALER_2X_V270_INT8\.tflite u:object_r:vendor_configs_file:s0
 /vendor/etc/midas/SRIBMidas_aiUPSCALER_3X_V270_INT8\.tflite u:object_r:vendor_configs_file:s0

@@ -18,9 +18,6 @@ vendor/etc/midas/SRIBMidas_aiCLARITY2.0_2X_V200_FP32.caffemodel 0 0 644 capabili
 vendor/etc/midas/SRIBMidas_aiDEBLUR_V140_FP32.tflite 0 0 644 capabilities=0x0
 vendor/etc/midas/SRIBMidas_aiMOIREREMOVE_Coarse_V900_FP32.caffemodel 0 0 644 capabilities=0x0
 vendor/etc/midas/SRIBMidas_aiMOIREREMOVE_Fine_V900_FP32.caffemodel 0 0 644 capabilities=0x0
-vendor/etc/midas/SRIBMidas_aiUPSCALER_2X_LITE_V100_INT8.tflite 0 0 644 capabilities=0x0
-vendor/etc/midas/SRIBMidas_aiUPSCALER_3X_LITE_V100_INT8.tflite 0 0 644 capabilities=0x0
-vendor/etc/midas/SRIBMidas_aiUPSCALER_4X_LITE_V100_INT8.tflite 0 0 644 capabilities=0x0
 vendor/etc/midas/midas_config.json 0 0 644 capabilities=0x0
 vendor/etc/midas/SRIBMidas_aiUPSCALER_2X_V270_INT8.tflite 0 0 644 capabilities=0x0
 vendor/etc/midas/SRIBMidas_aiUPSCALER_3X_V270_INT8.tflite 0 0 644 capabilities=0x0

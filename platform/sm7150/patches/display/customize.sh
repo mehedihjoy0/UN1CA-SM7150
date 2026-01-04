@@ -5,11 +5,13 @@ DELETE_FROM_WORK_DIR "vendor" "etc/vintf/manifest/android.hardware.graphics.comp
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Adding AIDL display composer from r9qxxx"
-ADD_TO_WORK_DIR "r9qxxx" "vendor" "bin/hw/android.hardware.memtrack@1.0-service" 0 2000 755 "u:object_r:hal_memtrack_default_exec:s0"
+
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "bin/hw/vendor.display.color@1.0-service" 0 2000 755 "u:object_r:vendor_hal_display_color_default_exec:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "bin/hw/vendor.qti.hardware.display.composer-service" 0 2000 755 "u:object_r:hal_graphics_composer_default_exec:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "etc/init/vendor.qti.hardware.display.composer-service.rc" 0 0 644 "u:object_r:vendor_configs_file:s0"
+ADD_TO_WORK_DIR "r9qxxx" "vendor" "etc/snapdragon_color_libs_config.xml" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "etc/vintf/manifest/vendor.qti.hardware.display.composer-service.xml" 0 0 644 "u:object_r:vendor_configs_file:s0"
+
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libdisp-aba.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libdisplayconfig.qti.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libdisplaydebug.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
@@ -24,6 +26,7 @@ ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libhdrdynamic.so" 0 0 644 "u:object_r:v
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libhdrdynamicootf.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libhistogram.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libqdMetaData.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
+ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libqdcm-mode-parser.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libqdutils.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libqseed3.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libqservice.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
@@ -35,6 +38,8 @@ ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libsdm-disp-vndapis.so" 0 0 644 "u:obje
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libsdmcore.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libsdmextension.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libsdmutils.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
+ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libsnapdragoncolor-manager.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
+ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libsnapdragoncolor-qdcm.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/libtinyxml2_1.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/vendor.display.color@1.0.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/vendor.display.color@1.1.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
@@ -54,10 +59,18 @@ ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/vendor.qti.hardware.display.mapperexten
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/vendor.qti.hardware.display.mapperextensions@1.1.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/hw/android.hardware.graphics.mapper@3.0-impl-qti-display.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
-ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/hw/android.hardware.memtrack@1.0-impl.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
-ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/hw/lights.lahaina.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
-#ADD_TO_WORK_DIR "r9qxxx" "vendor" "lib64/hw/memtrack.lahaina.so" 0 0 644 "u:object_r:vendor_configs_file:s0"
-mv "$WORK_DIR/vendor/lib64/hw/lights.lahaina.so" "$WORK_DIR/vendor/lib64/hw/lights.sm6150.so"
-#mv "$WORK_DIR/vendor/lib64/hw/memtrack.lahaina.so" "$WORK_DIR/vendor/lib64/hw/memtrack.sm6150.so"
+
 HEX_PATCH "$WORK_DIR/vendor/lib64/libsdmutils.so" "40F9F303012A3401" "40F9130080523401"
+
+# Workaround getMetaData() return path to fix GetCustomDimensions() error (from r9q).
+# Un-inline pixel format checks from:
+# if (format != HAL_PIXEL_FORMAT_YCbCr_420_SP_VENUS_UBWC || format != HAL_PIXEL_FORMAT_YCbCr_420_TP10_UBWC ||
+#      format != HAL_PIXEL_FORMAT_YCbCr_420_P010_UBWC)
+# to:
+# if (!IsUBwcFormat())
+# to retain padding and file size
+HEX_PATCH "$WORK_DIR/vendor/lib64/libgrallocutils.so" "60040035a8c35eb828040034a82e40b9" "e803002ae0031f2a28040035a8c35eb8"
+HEX_PATCH "$WORK_DIR/vendor/lib64/libgrallocutils.so" "1f910471200100542981815269f4af72" "e8030034a82e40b9e003082a75feff97"
+HEX_PATCH "$WORK_DIR/vendor/lib64/libgrallocutils.so" "1f01096ba0000054c980815269f4af72" "e803002ae0031f2a280300341f2003d5"
+HEX_PATCH "$WORK_DIR/vendor/lib64/libgrallocutils.so" "1f01096bc1020054bf431ef8a9aa4329" "1f2003d51f2003d5bf431ef8a9aa4329"
 LOG_STEP_OUT
