@@ -1,2 +1,0 @@
-libPolarrSnap.polarr.so
-libYuv.polarr.so
