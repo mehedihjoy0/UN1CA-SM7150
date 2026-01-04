@@ -49,7 +49,6 @@ vendor/lib64/hw/android.hardware.graphics.mapper@3.0-impl-qti-display.so 0 0 644
 vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/android.hardware.memtrack@1.0-impl.so 0 0 644 capabilities=0x0
 vendor/lib64/hw/lights.lahaina.so 0 0 644 capabilities=0x0
-vendor/lib64/hw/memtrack.lahaina.so 0 0 644 capabilities=0x0
 vendor/lib64/libdisp-aba.so 0 0 644 capabilities=0x0
 vendor/lib64/libdisplayconfig.qti.so 0 0 644 capabilities=0x0
 vendor/lib64/libdisplaydebug.so 0 0 644 capabilities=0x0
