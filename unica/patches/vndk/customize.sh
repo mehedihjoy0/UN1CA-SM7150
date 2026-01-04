@@ -7,7 +7,7 @@ fi
 ADD_TARGET_VNDK_APEX() {
     case "$TARGET_BOARD_API_LEVEL" in
         "30")
-            ADD_TO_WORK_DIR "a73xqxx" "system_ext" "apex/com.android.vndk.v30.apex" 0 0 644 "u:object_r:system_file:s0"
+            ADD_TO_WORK_DIR "r9qxxx" "system_ext" "apex/com.android.vndk.v30.apex" 0 0 644 "u:object_r:system_file:s0"
             ;;
         "31")
             ADD_TO_WORK_DIR "b0qxxx" "system_ext" "apex/com.android.vndk.v31.apex" 0 0 644 "u:object_r:system_file:s0"
