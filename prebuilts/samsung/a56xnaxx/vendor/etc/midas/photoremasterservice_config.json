@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "detectors": [
+    {
+      "name": "HDR",
+      "threshold": 0.85,
+      "info": "LDR detector from artifact detector or single detector"
+    }
+  ],
+  "enhancer_end_to_end": {
+    "deblur": {
+      "residual_if_mild_blur_detected": 0.8,
+      "residual_if_blur_detected": 1.0,
+      "residual_if_food_area_is_above_threshold_and_no_blur_det_no_mildblur_det": 0.7,
+      "info": "food area considered is in hdr.food_area_threshold_to_skip_hdr"
+    },
+    "doc_deblur": {
+      "residual": 1.0,
+      "text_roi_threshold":0.5
+    },
+    "hdr": {
+      "ldr_threshold2": 0.93,
+      "residual_cases": {
+        "residual_ldr_threshold2_and_person_and_backlit": 1.0,
+        "residual_ldr_threshold1_and_person": 0.5,
+        "residual_ldr_threshold1_and_no_person": 0.3,
+        "info": "threshold1 is detectors.HDR.threshold, threshold2 is enhancer_end_to_end.hdr.ldr_threshold2"
+      },
+      "food_area_threshold_to_skip_hdr": 0.25
+    },
+    "denoise": {
+      "residual_if_noise_detected": 0.7,
+      "residual_if_noise_detected_and_hdr_strength_is_1": 1.0,
+      "residual_cases": {
+        "residual_ldr_threshold2_and_person_and_backlit": 1.0,
+        "residual_ldr_threshold1_and_person": 0.5,
+        "residual_ldr_threshold1_and_no_person": 0.3
+      }
+    },
+    "ssim_threshold": 0.997
+  }
+}
