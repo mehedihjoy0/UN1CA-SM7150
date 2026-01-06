@@ -7,7 +7,6 @@
 /vendor/etc u:object_r:vendor_configs_file:s0
 /vendor/etc/init u:object_r:vendor_configs_file:s0
 /vendor/etc/init/vendor\.qti\.hardware\.display\.composer-service\.rc u:object_r:vendor_configs_file:s0
-/vendor/etc/snapdragon_color_libs_config\.xml u:object_r:vendor_configs_file:s0
 /vendor/etc/vintf u:object_r:vendor_configs_file:s0
 /vendor/etc/vintf/manifest u:object_r:vendor_configs_file:s0
 /vendor/etc/vintf/manifest/vendor\.qti\.hardware\.display\.composer-service\.xml u:object_r:vendor_configs_file:s0
@@ -25,10 +24,8 @@
 /vendor/lib64/libhdrdynamic\.so u:object_r:vendor_file:s0
 /vendor/lib64/libhdr_tm\.so u:object_r:vendor_file:s0
 /vendor/lib64/libhistogram\.so u:object_r:vendor_file:s0
-/vendor/lib64/libqdcm-mode-parser\.so u:object_r:vendor_file:s0
 /vendor/lib64/libqdMetaData\.so u:object_r:same_process_hal_file:s0
 /vendor/lib64/libqdutils\.so u:object_r:same_process_hal_file:s0
-/vendor/lib64/libqrtrclient\.so u:object_r:vendor_file:s0
 /vendor/lib64/libqseed3\.so u:object_r:vendor_file:s0
 /vendor/lib64/libqservice\.so u:object_r:same_process_hal_file:s0
 /vendor/lib64/libsdedrm\.so u:object_r:vendor_file:s0
@@ -39,8 +36,6 @@
 /vendor/lib64/libsdmcore\.so u:object_r:vendor_file:s0
 /vendor/lib64/libsdmextension\.so u:object_r:vendor_file:s0
 /vendor/lib64/libsdmutils\.so u:object_r:vendor_file:s0
-/vendor/lib64/libsnapdragoncolor-manager\.so u:object_r:vendor_file:s0
-/vendor/lib64/libsnapdragoncolor-qdcm\.so u:object_r:vendor_file:s0
 /vendor/lib64/libtinyxml2_1\.so u:object_r:vendor_file:s0
 /vendor/lib64/vendor\.display\.color@1\.0\.so u:object_r:vendor_file:s0
 /vendor/lib64/vendor\.display\.color@1\.1\.so u:object_r:vendor_file:s0
@@ -62,7 +57,5 @@
 /vendor/lib64/hw/android\.hardware\.graphics\.mapper@3\.0-impl-qti-display\.so u:object_r:same_process_hal_file:s0
 /vendor/lib64/hw/android\.hardware\.graphics\.mapper@4\.0-impl-qti-display\.so u:object_r:same_process_hal_file:s0
 /vendor/lib64/hw/android\.hardware\.memtrack@1\.0-impl\.so u:object_r:same_process_hal_file:s0
-/vendor/lib64/hw/lights\.sm6150\.so u:object_r:vendor_file:s0
-/vendor/lib64/hw/lights\.qcom\.so u:object_r:vendor_file:s0
-/vendor/lib64/hw/memtrack\.default\.so u:object_r:vendor_file:s0
-/vendor/lib64/hw/memtrack\.sm6150\.so u:object_r:vendor_file:s0
+/vendor/lib64/hw/lights\.kona\.so u:object_r:vendor_file:s0
+/vendor/lib64/hw/memtrack\.kona\.so u:object_r:vendor_file:s0
