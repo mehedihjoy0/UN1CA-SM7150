@@ -1,5 +1,5 @@
-LOG_STEP_IN "- Adding wpa_supplicant from a73xqxx"
-ADD_TO_WORK_DIR "a73xqxx" "vendor" "bin/hw/wpa_supplicant" 0 2000 755 "u:object_r:hal_wifi_supplicant_default_exec:s0"
+LOG_STEP_IN "- Adding wpa_supplicant from source"
+ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "bin/hw/wpa_supplicant" 0 2000 755 "u:object_r:hal_wifi_supplicant_default_exec:s0"
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Adding FM radio blobs from stock"
