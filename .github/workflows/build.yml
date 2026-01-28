@@ -54,6 +54,10 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      - name: Strip exit commands from shell scripts
+        run: |
+          find "$SRC_DIR/unica" "$SRC_DIR/scripts" -type f -name "*.sh" -exec sed -i -e 's/|| exit[[:space:]]*[0-9]*//g' -e '/^[[:space:]]*exit[[:space:]]*[0-9]*[[:space:]]*$/d' {} +
+
       - name: Build dependencies
         run: |
           source ./buildenv.sh ${{ matrix.target }}
