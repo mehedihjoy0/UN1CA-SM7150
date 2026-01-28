@@ -124,7 +124,8 @@ SEC_FLOATING_FEATURE_LCD_CONFIG_VIVIDPLUS=0
 SEC_FLOATING_FEATURE_SAIV_CONFIG_ARDOODLE_LIB=IMG_PICKING
 "
 
-ADD_TO_WORK_DIR "pa3qxxx" "system" "."
+ADD_TO_WORK_DIR "pa3qxxx" "system" "system/etc/floating_feature.xml"
+ADD_TO_WORK_DIR "pa3qxxx" "system" "system/priv-app/SecSettings/SecSettings.apk"
 
 # [
 APPLY_TARGET_FEATURE()
