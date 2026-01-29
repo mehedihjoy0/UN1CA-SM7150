@@ -54,7 +54,7 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Skip exiting patches
+      - name: Skip exiting
         run: |
           source ./buildenv.sh ${{ matrix.target }}
             find "$SRC_DIR/unica" "$SRC_DIR/scripts" -type f -name "*.sh" -exec \
