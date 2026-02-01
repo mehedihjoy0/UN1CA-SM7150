@@ -283,6 +283,10 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
         "smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettingsUtils.smali" "replaceall" \
         "$SOURCE_FINGERPRINT_CONFIG_SENSOR" \
         "$TARGET_FINGERPRINT_CONFIG_SENSOR"
+ SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettingsUtils.smali" "replaceall" \
+        "google_touch_display_ultrasonic,wireless_charging_notifier" \
+        "$TARGET_FINGERPRINT_CONFIG_SENSOR"
 
     if [[ "$(GET_FINGERPRINT_SENSOR_TYPE "$SOURCE_FINGERPRINT_CONFIG_SENSOR")" != "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" ]]; then
         if [[ "$(GET_FINGERPRINT_SENSOR_TYPE "$SOURCE_FINGERPRINT_CONFIG_SENSOR")" == "ultrasonic" ]]; then
@@ -366,7 +370,6 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
                     "smali/com/android/keyguard/KeyguardSecUpdateMonitorImpl\$\$ExternalSyntheticLambda40.smali" "remove"
                 SMALI_PATCH "system_ext" "priv-app/SystemUI/SystemUI.apk" \
                     "smali/com/android/keyguard/KeyguardSecUpdateMonitorImpl\$\$ExternalSyntheticLambda42.smali" "remove"
-            
 
                 if [[ "$TARGET_FINGERPRINT_CONFIG_SENSOR" == *"navi=1"* ]]; then
                     LOG "- Enabling FP_FEATURE_GESTURE_MODE:Z in /system/system/framework/services.jar/smali/com/android/server/biometrics/SemBiometricFeature.smali"
@@ -415,6 +418,11 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
             "<init>(Lcom/samsung/android/biometrics/app/setting/BiometricsUIService;)V" \
             "$SOURCE_FINGERPRINT_CONFIG_SENSOR" \
             "$TARGET_FINGERPRINT_CONFIG_SENSOR"
+        SMALI_PATCH "system" "system/priv-app/BiometricSetting/BiometricSetting.apk" \
+            "smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali" "replace" \
+            "<init>(Lcom/samsung/android/biometrics/app/setting/BiometricsUIService;)V" \
+            "google_touch_display_ultrasonic,wireless_charging_notifier" \
+            "$TARGET_FINGERPRINT_CONFIG_SENSOR"
     fi
 fi
 
@@ -430,6 +438,11 @@ if [[ "$SOURCE_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS" != "$TARGET_LCD_CONFIG_CONTRO
     SMALI_PATCH "system" "system/framework/ssrm.jar" \
         "smali/com/android/server/ssrm/PreMonitor.smali" "replace" \
         "getBrightness()Ljava/lang/String;" \
+        "$SOURCE_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS" \
+        "$TARGET_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS"
+    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "smali_classes4/com/samsung/android/settings/Rune.smali" "replace" \
+        "<clinit>()V" \
         "$SOURCE_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS" \
         "$TARGET_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS"
     SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
@@ -544,6 +557,11 @@ if [[ "$SOURCE_LCD_CONFIG_HFR_MODE" != "$TARGET_LCD_CONFIG_HFR_MODE" ]]; then
     SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
         "smali_classes4/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
         "getHighRefreshRateSeamlessType(I)I" \
+        "$SOURCE_LCD_CONFIG_HFR_MODE" \
+        "$TARGET_LCD_CONFIG_HFR_MODE"
+    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+        "smali_classes4/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
+        "getHighRefreshRateSeamlessType(I)I" \
         "3" \
         "$TARGET_LCD_CONFIG_HFR_MODE"
     SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
@@ -588,6 +606,11 @@ if [[ "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" != "$TARGET_LCD_CONFIG_HFR
             "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
             "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}"
         SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+            "smali_classes4/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
+            "getHighRefreshRateSupportedValues(I)[Ljava/lang/String;" \
+            "$SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
+            "${TARGET_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE//none/}"
+       SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
             "smali_classes4/com/samsung/android/settings/display/SecDisplayUtils.smali" "replace" \
             "getHighRefreshRateSupportedValues(I)[Ljava/lang/String;" \
             "24,10,30,48,60,80,120" \
@@ -1146,19 +1169,6 @@ elif $SOURCE_WLAN_SUPPORT_WIFI_TO_CELLULAR && ! $TARGET_WLAN_SUPPORT_WIFI_TO_CEL
         "isWifiToCellularSupported()Z" \
         "false"
 fi
-find "$APKTOOL_DIR/system" -type f -name "*.smali" -exec \
-    sed -i -E "s/google_touch_display_ultrasonic,wireless_charging_notifier/$TARGET_FINGERPRINT_CONFIG_SENSOR/g" {} +
-find "$APKTOOL_DIR/system" -type f -name "*.smali" -exec \
-    sed -i -E "s/google_touch_display_ultrasonic/$TARGET_FINGERPRINT_CONFIG_SENSOR/g" {} +
-find "$APKTOOL_DIR/system" -type f -name "*.smali" -exec \
-    sed -i -E "s/google_touch_display_optical,settings=3,no_delay_in_screen_off,transition_effect_on/$TARGET_FINGERPRINT_CONFIG_SENSOR/g" {} +
-find "$APKTOOL_DIR/system" -type f -name "*.smali" -exec \
-    sed -i -E "s/google_touch_display_optical,settings=3,no_delay_in_screen_off/$TARGET_FINGERPRINT_CONFIG_SENSOR/g" {} +
-find "$APKTOOL_DIR/system" -type f -name "*.smali" -exec \
-    sed -i -E "s/google_touch_display_optical,settings=3/$TARGET_FINGERPRINT_CONFIG_SENSOR/g" {} +
-find "$APKTOOL_DIR/system" -type f -name "*.smali" -exec \
-    sed -i -E "s/google_touch_display_optical/$TARGET_FINGERPRINT_CONFIG_SENSOR/g" {} +
-    
-    
+
 unset TARGET_FIRMWARE_PATH
 unset -f GET_FINGERPRINT_SENSOR_TYPE LOG_MISSING_PATCHES
