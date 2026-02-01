@@ -407,7 +407,7 @@ index b23c70ddb..2b5efd8fe 100644
  
      sput-boolean v0, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_OPTICAL:Z
  
--    sput-boolean v2, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z
+-    sput-boolean v2, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_OPTICAL:Z
 -
      invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
  
@@ -417,14 +417,14 @@ index b23c70ddb..2b5efd8fe 100644
      move-result-object v0
  
 -    const-string/jumbo v4, "side"
-+    const-string/jumbo v4, "ultrasonic"
++    const-string/jumbo v4, "optical"
  
      invoke-virtual {v0, v4}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
  
      move-result v0
  
 -    sput-boolean v0, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_SIDE:Z
-+    sput-boolean v0, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_ULTRASONIC:Z
++    sput-boolean v0, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_OPTICAL:Z
 +
 +    sput-boolean v2, Lcom/android/server/biometrics/SemBiometricFeature;->FP_FEATURE_SENSOR_IS_SIDE:Z
 +
@@ -1576,7 +1576,7 @@ index 518728fe9..de7ea5ab6 100644
 -    check-cast v3, Lcom/android/server/biometrics/sensors/fingerprint/ServiceProvider;
 +    check-cast v0, Lcom/android/server/biometrics/sensors/fingerprint/ServiceProvider;
  
-     iget-boolean v4, v5, Lcom/android/server/biometrics/sensors/fingerprint/SemFingerprintServiceExtImpl;->mHasUltrasonicUdfps:Z
+     iget-boolean v4, v5, Lcom/android/server/biometrics/sensors/fingerprint/SemFingerprintServiceExtImpl;->mHasOpticalUdfps:Z
  
 -    if-eqz v4, :cond_14
 +    if-eqz v4, :cond_17
