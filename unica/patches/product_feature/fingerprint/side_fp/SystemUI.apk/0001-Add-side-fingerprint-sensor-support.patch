@@ -184,7 +184,7 @@ index 634b0cde6d..6e0c27333a 100644
  
 -    if-nez p1, :cond_7
 -
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez p1, :cond_7
 +    if-nez p1, :cond_6
@@ -448,7 +448,7 @@ index 3f01081a55..9026ffe398 100644
  
      move-result v0
  
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    const/4 v2, 0x0
 -
@@ -554,7 +554,7 @@ index 8e638922e2..4c36601b63 100644
      invoke-virtual {p0}, Lcom/android/keyguard/KeyguardSecAbsKeyInputViewController;->displayDefaultSecurityMessage()V
  
      :cond_0
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_1
 -
@@ -1566,7 +1566,7 @@ index a92a38357d..ac988272f3 100644
      invoke-virtual {p0}, Lcom/android/keyguard/KeyguardSecPatternViewController;->displayDefaultSecurityMessage()V
  
      :cond_0
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_1
 -
@@ -2484,7 +2484,7 @@ index 1a333b3d4e..bc8e0973e9 100644
 +    aput v4, v2, v3
  
      :cond_5
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_6
 -
@@ -2505,7 +2505,7 @@ index 1a333b3d4e..bc8e0973e9 100644
 -    goto :goto_4
 -
 -    :cond_7
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p1, :cond_9
 -
@@ -2708,7 +2708,7 @@ index 45290c3888..33abd4f0e8 100644
  
 -    if-nez v0, :cond_12
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez v0, :cond_12
 +    if-nez v0, :cond_10
@@ -2952,7 +2952,7 @@ index 84d5d1b92e..47fff02098 100644
  
      invoke-static {v0, v2}, Landroid/util/Log;->i(Ljava/lang/String;Ljava/lang/String;)I
  
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-object v0, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
  
 -    if-eqz v0, :cond_4
@@ -2982,7 +2982,7 @@ index 2882bff41f..f30ccfc2cb 100644
  
      :cond_1
      :goto_0
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-object p1, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
  
 -    if-eqz p1, :cond_2
@@ -3581,7 +3581,7 @@ index 7fd0b378a2..fb552da800 100644
      invoke-virtual {p1}, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->dispatchLockModeChanged()V
  
      :cond_0
--    sget-boolean p0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p0, :cond_1
 -
@@ -3763,7 +3763,7 @@ index faeaac1cb9..ba4c5374c1 100644
  
      invoke-virtual {v6, v0, v2}, Lcom/android/systemui/broadcast/BroadcastDispatcher;->registerReceiver(Landroid/content/IntentFilter;Landroid/content/BroadcastReceiver;)V
  
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_3
 -
@@ -3803,7 +3803,7 @@ index faeaac1cb9..ba4c5374c1 100644
      sget-object v1, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
  
      :goto_0
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v1, :cond_1
 -
@@ -4793,7 +4793,7 @@ index faeaac1cb9..ba4c5374c1 100644
      invoke-virtual {p0, p1, v3}, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->dispatchCallback(Ljava/util/function/Consumer;Ljava/lang/String;)V
  
      :cond_9
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p1, :cond_a
 -
@@ -5188,7 +5188,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -
 -    invoke-static {v1, v3, v13}, Lcom/android/keyguard/EmergencyButtonController$$ExternalSyntheticOutline0;->m(Ljava/lang/String;Ljava/lang/String;Z)V
 -
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v1, :cond_7
 -
@@ -7214,7 +7214,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -    goto/16 :goto_15
 -
 -    :cond_3b
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    if-nez v1, :cond_3a
  
 -    if-eqz v1, :cond_3c
@@ -8160,7 +8160,7 @@ index faeaac1cb9..ba4c5374c1 100644
  
      iput-boolean v1, v0, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->mIsNotiStarShown:Z
  
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    const/4 v5, 0x2
 -
@@ -8328,7 +8328,7 @@ index faeaac1cb9..ba4c5374c1 100644
 +    iget-object v0, v0, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->mWaitingFocusRunnable:Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl$$ExternalSyntheticLambda11;
  
 -    :cond_62
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v1, :cond_63
 -
@@ -8499,7 +8499,7 @@ index faeaac1cb9..ba4c5374c1 100644
 +    iput-boolean v1, p0, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->mNeedSubWofFpAuth:Z
  
      :cond_1
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    iget v0, p0, Lcom/android/keyguard/KeyguardUpdateMonitor;->mPhoneState:I
  
 -    if-eqz v0, :cond_2
@@ -8544,7 +8544,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -    if-eqz v0, :cond_1
 -
 -    :cond_0
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_1
 -
@@ -8603,7 +8603,7 @@ index faeaac1cb9..ba4c5374c1 100644
      invoke-virtual {p0, v1}, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->setFaceAuthenticated(Z)V
  
      :cond_1
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p1, :cond_3
 -
@@ -8704,7 +8704,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -.method public final sendScreenStatus(Z)V
 -    .locals 4
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_3
 -
@@ -8823,7 +8823,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -    if-eqz p1, :cond_7
 -
 -    :cond_5
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
      if-eqz p1, :cond_6
  
@@ -8861,7 +8861,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -.method public final setFodStrictMode(Z)V
 -    .locals 4
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_1
 -
@@ -8971,7 +8971,7 @@ index faeaac1cb9..ba4c5374c1 100644
  
      iput-boolean p1, p0, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->mIsNowBarExpandMode:Z
  
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p1, :cond_0
 -
@@ -8993,7 +8993,7 @@ index faeaac1cb9..ba4c5374c1 100644
  .method public final setPanelExpandingStarted(Z)V
 -    .locals 5
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    .locals 1
  
 -    if-eqz v0, :cond_0
@@ -9063,7 +9063,7 @@ index faeaac1cb9..ba4c5374c1 100644
  
      iput-boolean p1, p0, Lcom/android/keyguard/KeyguardSecUpdateMonitorImpl;->mIsShortcutLaunchInProgress:Z
  
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-object p0, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
  
 -    if-eqz p1, :cond_0
@@ -9220,7 +9220,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -    invoke-virtual {v2, v3, v4}, Lcom/android/systemui/util/SettingsHelper;->registerCallback(Lcom/android/systemui/util/SettingsHelper$OnChangedCallback;[Landroid/net/Uri;)V
 +    iget-object v2, p0, Lcom/android/keyguard/KeyguardUpdateMonitor;->mUserTracker:Lcom/android/systemui/settings/UserTracker;
  
--    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    check-cast v2, Lcom/android/systemui/settings/UserTrackerImpl;
  
 -    if-eqz v2, :cond_0
@@ -9671,7 +9671,7 @@ index faeaac1cb9..ba4c5374c1 100644
 -    return v1
 -
 -    :cond_17
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_29
 -
@@ -10500,7 +10500,7 @@ index faeaac1cb9..ba4c5374c1 100644
  
      :cond_6
 -    :goto_2
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p1, :cond_7
 -
@@ -10559,7 +10559,7 @@ index 508e312225..868297b221 100644
      return-object p0
  
      :cond_e
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez v1, :cond_f
 +    sget-object v1, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
@@ -10579,7 +10579,7 @@ index 508e312225..868297b221 100644
      :goto_4
      iput-boolean p1, p0, Lcom/android/keyguard/KeyguardTextBuilder;->mIsFingerprint:Z
  
--    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v2, :cond_6
 -
@@ -10849,7 +10849,7 @@ index aaf0bf07b2..bb352fe789 100644
  .method public final onLockModeChanged()V
      .locals 1
  
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez v0, :cond_0
 +    sget-object v0, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
@@ -10925,7 +10925,7 @@ index b3a040baef..bd38dea0a2 100644
  
      move-result v1
  
--    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v2, :cond_0
 -
@@ -11356,7 +11356,7 @@ index 69a3bb81a0..fb1f0ceeba 100644
  
      move-result-object v3
  
--    sget-boolean v4, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v4, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v4, :cond_11
 -
@@ -11850,7 +11850,7 @@ index 503053a96d..1074d0bbe2 100644
      goto :goto_1
  
      :cond_1
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_3
 -
@@ -12395,7 +12395,7 @@ index 182a4a41b2..4997ee6901 100644
 -
  .field public static final SECURITY_FINGERPRINT_HOME:Z
  
--.field public static final SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-.field public static final SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +.field public static final SECURITY_FINGERPRINT_SIDE:Z
  
  .field public static final SECURITY_HAPTIC_FEEDBACK_ON_DC_MOTOR:Z
@@ -12404,7 +12404,7 @@ index 182a4a41b2..4997ee6901 100644
  
      sput-boolean v7, Lcom/android/systemui/LsRune;->SECURITY_UNPACK:Z
  
--    sput-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sput-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sput-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_SIDE:Z
  
      const-string v7, "SEC_FLOATING_FEATURE_BIOAUTH_CONFIG_FINGERPRINT_FEATURES"
@@ -13710,7 +13710,7 @@ index c42bec31c1..e1d5a892a3 100644
  
 -    if-ne p2, p1, :cond_19
 -
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    if-ne p2, p1, :cond_18
  
 -    if-eqz p1, :cond_18
@@ -13781,7 +13781,7 @@ index 95af3dc78c..0ebfdb6cdb 100644
 -    if-eqz v0, :cond_b
 +    if-eqz v0, :cond_c
  
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-object v0, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
 +
 +    :cond_b
@@ -14114,7 +14114,7 @@ index 90d47bb794..e3e485ec1c 100644
  
      invoke-virtual {v3}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
  
--    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_SIDE:Z
  
      if-nez v5, :cond_8
@@ -14968,7 +14968,7 @@ index 3cce5f3feb..f6f573af8b 100644
 -
 -    invoke-virtual {v4}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 -
--    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v5, :cond_16
 -
@@ -15362,7 +15362,7 @@ index da0a5dbc66..a54fb74f40 100644
 -
 -    invoke-virtual {v0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
 -
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v1, :cond_10
 -
@@ -15663,7 +15663,7 @@ index ae4cfa54e8..53f7fcd1ad 100644
 -.method public final isFingerprintArea(Landroid/view/MotionEvent;)Z
 -    .locals 2
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v0, :cond_0
 -
@@ -15870,7 +15870,7 @@ index 459aa17ade..c5884ec942 100644
  
 -    move-result v0
 -
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    const v2, 0x7f0a0619
 -
@@ -16642,7 +16642,7 @@ index ca1ac98e74..b0147ce611 100644
  
      invoke-virtual {p0}, Ljava/lang/Object;->getClass()Ljava/lang/Class;
  
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_SIDE:Z
  
 -    if-eqz v0, :cond_3
@@ -16968,7 +16968,7 @@ index a83432a72b..d14149345a 100644
  
      if-eqz p3, :cond_d
  
--    sget-boolean p3, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p3, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p3, :cond_d
 -
@@ -17077,7 +17077,7 @@ index 352aed096c..61a91f7011 100644
      goto :goto_2
  
      :cond_4
--    sget-boolean v3, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v3, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez v3, :cond_6
 +    sget-object v3, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
@@ -17560,7 +17560,7 @@ index 352aed096c..61a91f7011 100644
      goto :goto_5
  
      :cond_d
--    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v5, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    const-string v7, "2"
 -
@@ -17854,7 +17854,7 @@ index 352aed096c..61a91f7011 100644
 +    goto :goto_3
  
      :cond_2
--    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez v2, :cond_5
 +    sget-object v3, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
@@ -18207,7 +18207,7 @@ index 352aed096c..61a91f7011 100644
      goto :goto_0
  
      :goto_1
--    sget-boolean p2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez p2, :cond_b
 -
@@ -18285,7 +18285,7 @@ index 352aed096c..61a91f7011 100644
  
 -    if-eqz v0, :cond_5
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    if-eqz v0, :cond_4
  
 -    if-nez v0, :cond_3
@@ -18334,7 +18334,7 @@ index 365af1a61d..653c809d73 100644
      sput-object v1, Lcom/android/systemui/qs/buttons/QSTooltipWindow;->sInstance:Lcom/android/systemui/qs/buttons/QSTooltipWindow;
  
      :cond_0
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-object v0, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
  
 -    if-eqz v0, :cond_1
@@ -18377,7 +18377,7 @@ index 9f97b3c262..03245f2098 100644
      invoke-static {}, Lcom/android/systemui/util/DeviceState;->setLandscapeDefaultRotation()V
  
      :cond_40
--    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v2, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz v2, :cond_41
 -
@@ -18586,7 +18586,7 @@ index 789e05798d..63373e932e 100644
      iput v4, v1, Lcom/android/systemui/statusbar/phone/KeyguardSecBottomAreaView$ConfigurationBasedDimensions;->indicationAreaSideMargin:I
  
      :cond_a
--    sget-boolean v4, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v4, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    const/4 v6, 0x1
 -
@@ -19067,7 +19067,7 @@ index 64f9076d09..d980092ac7 100644
  
      invoke-virtual {p1, v3, v1}, Landroid/os/Bundle;->putInt(Ljava/lang/String;I)V
  
--    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    sget-object v1, Lcom/android/systemui/LsRune;->VALUE_SUB_DISPLAY_POLICY:Ljava/lang/String;
  
 -    if-eqz v1, :cond_1
@@ -19154,7 +19154,7 @@ index 6617e95d37..72f53873fb 100644
 -
 -    if-eqz p1, :cond_0
 -
--    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-eqz p1, :cond_0
 -
@@ -19185,7 +19185,7 @@ index 09110fa05c..5c956068c0 100644
  .method public static isSmartViewDisplayWithFitToAspectRatio(Landroid/content/Context;)Z
 -    .locals 6
 -
--    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean v0, Lcom/android/systemui/LsRune;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 +    .locals 0
  
 -    if-nez v0, :cond_0

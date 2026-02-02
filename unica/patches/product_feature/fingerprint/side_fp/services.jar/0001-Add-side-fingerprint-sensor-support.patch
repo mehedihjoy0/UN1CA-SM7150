@@ -3787,7 +3787,7 @@ index 736afc1da..e8c0c67a1 100644
  
      if-nez p1, :cond_1
  
--    sget-boolean p1, Lcom/android/server/power/PowerManagerUtil;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sget-boolean p1, Lcom/android/server/power/PowerManagerUtil;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
 -    if-nez p1, :cond_1
 -
@@ -3802,7 +3802,7 @@ index 59c4f2eb0..7eefce418 100644
  
  .field public static final LCD_FLASH_BRIGHTNESS:I
  
--.field public static final SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-.field public static final SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
  .field public static final SEC_FEATURE_AOD_BRIGHTNESS_ANIM:Z
  
@@ -3811,7 +3811,7 @@ index 59c4f2eb0..7eefce418 100644
  
      sput-boolean v7, Lcom/android/server/power/PowerManagerUtil;->SEC_FEATURE_HQM_SEND_LBHD_HIGHEST:Z
  
--    sput-boolean v2, Lcom/android/server/power/PowerManagerUtil;->SECURITY_FINGERPRINT_IN_DISPLAY:Z
+-    sput-boolean v2, Lcom/android/server/power/PowerManagerUtil;->SECURITY_FINGERPRINT_IN_DISPLAY_OPTICAL:Z
 -
      invoke-static {}, Lcom/samsung/android/feature/SemFloatingFeature;->getInstance()Lcom/samsung/android/feature/SemFloatingFeature;
  

@@ -279,10 +279,6 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
         "smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager\$Characteristics.smali" "replaceall" \
         "$SOURCE_FINGERPRINT_CONFIG_SENSOR" \
         "$TARGET_FINGERPRINT_CONFIG_SENSOR"
-    SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-        "smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettingsUtils.smali" "replaceall" \
-        "$SOURCE_FINGERPRINT_CONFIG_SENSOR" \
-        "$TARGET_FINGERPRINT_CONFIG_SENSOR"
  SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
         "smali_classes4/com/samsung/android/settings/biometrics/fingerprint/FingerprintSettingsUtils.smali" "replaceall" \
         "google_touch_display_ultrasonic,wireless_charging_notifier" \
@@ -417,11 +413,6 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
             "smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali" "replace" \
             "<init>(Lcom/samsung/android/biometrics/app/setting/BiometricsUIService;)V" \
             "$SOURCE_FINGERPRINT_CONFIG_SENSOR" \
-            "$TARGET_FINGERPRINT_CONFIG_SENSOR"
-        SMALI_PATCH "system" "system/priv-app/BiometricSetting/BiometricSetting.apk" \
-            "smali/com/samsung/android/biometrics/app/setting/DisplayStateManager.smali" "replace" \
-            "<init>(Lcom/samsung/android/biometrics/app/setting/BiometricsUIService;)V" \
-            "google_touch_display_ultrasonic,wireless_charging_notifier" \
             "$TARGET_FINGERPRINT_CONFIG_SENSOR"
     fi
 fi
