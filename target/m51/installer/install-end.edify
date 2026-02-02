@@ -1,7 +1,8 @@
-if verify_no_downgrade(getprop("ro.boot.bootloader"), "M515FXXS6DXE3") && getprop("ro.boot.rp") == "6" then
-  ui_print("Full Patching modem.bin...");
+ui_print("****************************************");
+ui_print("Flashing firmwares");
+  ui_print("Patching modem.bin...");
   package_extract_file("modem.bin", "/dev/block/by-name/modem");
-  ui_print("Full Patching vbmeta.img...");
+  ui_print("Patching vbmeta.img...");
   package_extract_file("vbmeta.img", "/dev/block/by-name/vbmeta");
   ui_print("Patching abl.elf...");
   package_extract_file("abl.elf", "/dev/block/by-name/abl");
@@ -47,4 +48,4 @@ if verify_no_downgrade(getprop("ro.boot.bootloader"), "M515FXXS6DXE3") && getpro
   package_extract_file("xbl_config.elf", "/dev/block/by-name/xbl_config");
   ui_print("Patching NON-HLOS.bin...");
   package_extract_file("NON-HLOS.bin", "/dev/block/by-name/apnhlos");
-endif;
+  

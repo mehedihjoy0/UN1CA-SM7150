@@ -16,7 +16,7 @@ index 1ee678cf..764542ec 100644
 +++ b/smali_classes2/android/hardware/fingerprint/FingerprintManager.smali
 @@ -1193,7 +1193,7 @@
  .method public static blacklist semGetSensorPosition()I
-     .registers 1
+     .locals 1
  
 -    const/4 v0, 0x2
 +    const/4 v0, 0x4
@@ -73,7 +73,7 @@ index 43149059..9824b830 100644
 +++ b/smali_classes6/com/samsung/android/bio/fingerprint/SemFingerprintManager$Characteristics.smali
 @@ -94,7 +94,7 @@
  .method public whitelist getSensorType()I
-     .registers 1
+     .locals 1
  
 -    const/4 p0, 0x2
 +    const/4 p0, 0x1
