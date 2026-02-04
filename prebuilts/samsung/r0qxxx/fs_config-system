@@ -1,0 +1,4 @@
+system  0 0 755 capabilities=0x0
+system/priv-app 0 0 755 capabilities=0x0
+system/priv-app/SecSettings 0 0 755 capabilities=0x0
+system/priv-app/SecSettings/SecSettings.apk  0 0 644 capabilities=0x0

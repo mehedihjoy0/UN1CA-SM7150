@@ -24,6 +24,8 @@ LOG_MISSING_PATCHES()
 }
 # ]
 
+ADD_TO_WORK_DIR "r0qxxx" "system" "system/priv-app/SecSettings/SecSettings.apk"
+
 # SEC_PRODUCT_FEATURE_BUILD_MAINLINE_API_LEVEL
 if [[ "$SOURCE_PRODUCT_SHIPPING_API_LEVEL" != "$TARGET_PRODUCT_SHIPPING_API_LEVEL" ]]; then
     SMALI_PATCH "system" "system/framework/esecomm.jar" \
