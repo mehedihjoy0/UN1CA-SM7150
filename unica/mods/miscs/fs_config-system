@@ -1,0 +1,4 @@
+system  0 0 755 capabilities=0x0
+system/app 0 0 755 capabilities=0x0
+system/app/GoogleCTS 0 0 755 capabilities=0x0
+system/app/GoogleCTS/GoogleCTS.apk  0 0 644 capabilities=0x0
