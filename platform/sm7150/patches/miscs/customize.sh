@@ -1,5 +1,5 @@
 LOG_STEP_IN "- Adding \"ro.netflix.bsp_rev\" prop with \"Q7250-19133-1\" in /system/system/build.prop"
-EVAL "sed -i \"/ro.smps.gain.spk/i ro.netflix.bsp_rev=Q7250-19133-1\" \"$WORK_DIR/system/system/build.prop\""
+SET_PROP "system" "ro.netflix.bsp_rev" "Q7250-19133-1"
 LOG_STEP_OUT 
 
 LOG_STEP_IN "- Removing frp"
@@ -18,3 +18,10 @@ LOG_STEP_OUT
 LOG_STEP_IN "- Increasing audio buffer size to 1024"
 SET_PROP "vendor" "vendor.audio.offload.buffer.size.kb" "1024"
 LOG_STEP_OUT 
+
+LOG_STEP_IN "- Adding tlc from source"
+ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "bin/hw/vendor.samsung.hardware.tlc.iccc@1.0-service"
+ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "etc/init/vendor.samsung.hardware.tlc.iccc@1.0-service.rc"
+ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "lib64/vendor.samsung.hardware.tlc.iccc@1.0.so"
+ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "lib64/vendor.samsung.hardware.tlc.iccc@1.0-impl.so"
+LOG_STEP_OUT
