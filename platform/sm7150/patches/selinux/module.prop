@@ -1,0 +1,4 @@
+id=selinux
+name=Precompiled Selinux
+author=mehedihjoy0 
+description=Fix selinux with precompiled sepolicy.
