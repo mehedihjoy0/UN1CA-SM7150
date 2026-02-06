@@ -28,7 +28,7 @@ Any form of contribution, suggestions, bug report or feature request for the pro
 
 # Features
 ### Core features:
-- Based on the latest stable Galaxy S22 firmware
+- Based on the latest stable Galaxy A73 firmware
 - EROFS powered
 - Galaxy S25 wallpapers/sounds included
 - Galaxy AI support
