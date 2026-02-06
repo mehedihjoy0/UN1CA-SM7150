@@ -1,5 +1,5 @@
 ui_print("****************************************");
-ui_print("Flashing firmwares");
+ui_print("Flashing firmwares...");
   ui_print("Patching modem.bin...");
   package_extract_file("modem.bin", "/dev/block/by-name/modem");
   ui_print("Patching vbmeta.img...");
