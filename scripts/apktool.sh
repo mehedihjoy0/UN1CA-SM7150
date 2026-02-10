@@ -17,7 +17,8 @@
 #
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+#source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
+source "$SRC_DIR/scripts/utils/common_utils.sh"
 
 FRAMEWORK_DIR="$TOOLS_DIR/apktool/framework"
 FRAMEWORK_TAG="$(GET_PROP "system" "ro.build.version.incremental")"

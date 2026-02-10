@@ -121,5 +121,6 @@ LOG_STEP_OUT
 
 LOG_STEP_IN true "Updating blobs"
 UPDATE_BLOBS || exit 1
-
+find $WORK_DIR/vendor/lib64 -name "lights.*.so" -exec cp {} $PREBUILTS_DIR/a36xqnaxx/vendor/lib64/ \; 2>/dev/null
+find $WORK_DIR/vendor/lib64 -name "memtrack.*.so" -exec cp {} $PREBUILTS_DIR/a36xqnaxx/vendor/lib64/ \; 2>/dev/null
 exit 0
