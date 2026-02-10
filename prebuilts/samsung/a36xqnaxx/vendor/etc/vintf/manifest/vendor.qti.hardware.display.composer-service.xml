@@ -1,0 +1,24 @@
+<!--
+    Input:
+        hardware/qcom/display/composer/vendor.qti.hardware.display.composer-service.xml
+-->
+<manifest version="8.0" type="device">
+    <hal format="aidl">
+        <name>android.hardware.graphics.composer3</name>
+        <version>3</version>
+        <fqname>IComposer/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>vendor.qti.hardware.display.color</name>
+        <fqname>IDisplayColor/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>vendor.qti.hardware.display.config</name>
+        <version>7</version>
+        <fqname>IDisplayConfig/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>vendor.qti.hardware.display.postproc</name>
+        <fqname>IDisplayPostproc/default</fqname>
+    </hal>
+</manifest>
