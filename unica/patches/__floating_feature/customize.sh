@@ -125,6 +125,8 @@ SEC_FLOATING_FEATURE_SAIV_CONFIG_ARDOODLE_LIB=IMG_PICKING
 "
 
 # [
+ADD_TO_WORK_DIR "pa3qxxx" "system" "system/etc/floating_feature.xml"
+
 APPLY_TARGET_FEATURE()
 {
     local TARGET_FIRMWARE_PATH="$(cut -d "/" -f 1 -s <<< "$TARGET_FIRMWARE")_$(cut -d "/" -f 2 -s <<< "$TARGET_FIRMWARE")"
