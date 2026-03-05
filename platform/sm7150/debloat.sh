@@ -44,6 +44,7 @@ system/etc/permissions/privapp-permissions-com.samsung.android.app.earphonetypec
 system/priv-app/EarphoneTypeC
 system/priv-app/IntelligentDynamicFpsService
 system/priv-app/SamsungPositioning
+system/priv-app/OMCAgent5
 "
 
 # Hotword Enrollment 
