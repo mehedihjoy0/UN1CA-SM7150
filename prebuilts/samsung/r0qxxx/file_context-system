@@ -1,0 +1,12 @@
+/system u:object_r:system_file:s0
+/system/etc u:object_r:system_file:s0
+/system/etc/floating_feature\.xml u:object_r:system_file:s0
+/system/priv-app u:object_r:system_file:s0
+/system/priv-app/BixbyInterpreter u:object_r:system_file:s0
+/system/priv-app/BixbyInterpreter/BixbyInterpreter\.apk u:object_r:system_file:s0
+/system/priv-app/PhotoEditor_AIFull u:object_r:system_file:s0
+/system/priv-app/PhotoEditor_AIFull/PhotoEditor_AIFull\.apk u:object_r:system_file:s0
+/system/priv-app/Routines u:object_r:system_file:s0
+/system/priv-app/Routines/Routines\.apk u:object_r:system_file:s0
+/system/priv-app/SecSettings u:object_r:system_file:s0
+/system/priv-app/SecSettings/SecSettings\.apk u:object_r:system_file:s0
