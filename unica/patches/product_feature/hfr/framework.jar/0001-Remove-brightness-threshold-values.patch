@@ -15,7 +15,7 @@ index 7d9182d5..c4340ef7 100644
  
      invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  
--    const-string v0, "SEAMLESS_BRT: 84,85"
+-    const-string v0, "SEAMLESS_BRT: 149,84"
 +    const-string v0, "SEAMLESS_BRT: "
  
      invoke-virtual {p2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -24,7 +24,7 @@ index 7d9182d5..c4340ef7 100644
  
      invoke-virtual {p2, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
  
--    const-string v0, "SEAMLESS_LUX: 200,1500"
+-    const-string v0, "SEAMLESS_LUX: 300,3500"
 +    const-string v0, "SEAMLESS_LUX: "
  
      invoke-virtual {p2, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
@@ -42,9 +42,9 @@ index 7d9182d5..c4340ef7 100644
  
      const-string/jumbo v2, "persist.dm.passive.ambient_brightness"
  
--    const-string v3, "84,85"
+-    const-string v3, "149,84"
 -
--    const-string v4, "200,1500"
+-    const-string v4, "300,3500"
 +    const-string v3, ""
  
 -    invoke-direct {v0, v3, v4, v1, v2}, Lcom/samsung/android/hardware/display/RefreshRateConfig$BrightnessThreshold;-><init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
