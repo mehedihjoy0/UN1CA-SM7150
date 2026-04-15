@@ -78,7 +78,7 @@ jobs:
           source ./buildenv.sh m51
           ./scripts/make_rom.sh --build-rom-zip
 
-            - name: Upload to GoFile
+      - name: Upload to GoFile
         run: |
           ZIP_FILE=$(find out -maxdepth 1 -type f -name "*.zip" | head -n 1)
           RESPONSE=$(curl -s -F "file=@$ZIP_FILE" -F "token=${{ secrets.GOFILE_TOKEN }}" -F "folderId=${{ secrets.GOFILE_FOLDER_ID }}" "https://upload-eu-par.gofile.io/uploadFile")
