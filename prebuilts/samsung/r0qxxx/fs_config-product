@@ -1,0 +1,8 @@
+product 0 0 755 capabilities=0x0
+product/etc 0 0 755 capabilities=0x0
+product/etc/sysconfig 0 0 755 capabilities=0x0
+product/etc/sysconfig/google_searcle.xml 0 0 644 capabilities=0x0
+product/etc/sysconfig/sysconfig_gemini.xml 0 0 644 capabilities=0x0
+product/etc/sysconfig/sysconfig_contextual_search.xml 0 0 644 capabilities=0x0
+product/overlay 0 0 755 capabilities=0x0
+product/overlay/DefaultContextualSearchOverlay.apk 0 0 644 capabilities=0x0
