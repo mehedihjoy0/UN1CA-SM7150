@@ -71,5 +71,6 @@
         <permission name="com.samsung.permission.READ_IAFD_DATA"/>
         <permission name="com.samsung.permission.WRITE_IAFD_DATA"/>
         <permission name="android.permission.INTERNAL_DELETE_CACHE_FILES"/>
+        <permission name="com.samsung.android.permission.RESIDENT_SWAP" />
     </privapp-permissions>
 </permissions>
