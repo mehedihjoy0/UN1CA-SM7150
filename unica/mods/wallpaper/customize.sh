@@ -68,18 +68,28 @@ ENCODE_MP4()
 }
 # ]
 
-ADD_TO_WORK_DIR "pa2qxxx" "system" \
-    "system/priv-app/wallpaper-res/wallpaper-res.apk" 0 0 644 "u:object_r:system_file:s0"
-DECODE_APK "system" "system/priv-app/wallpaper-res/wallpaper-res.apk"
-for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/drawable-nodpi/dex_wallpaper_"*.webp; do
-    COMPRESS_WEBP "$f"
-done
-for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/drawable-nodpi/wallpaper_"*.webp; do
-    COMPRESS_WEBP "$f"
-done
-for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/raw/video_"*.mp4; do
-    ENCODE_MP4 "$f"
-done
+if [ "$TARGET_CODENAME" = "m51" ]; then
+    LOG "- Downloading pre-optimized wallpaper-res.apk"
+    DOWNLOAD_FILE \
+    "https://github.com/mehedihjoy0/pa2q-wall/raw/refs/heads/main/wallpaper-res.apk" \
+    "$WORK_DIR/system/system/priv-app/wallpaper-res/wallpaper-res.apk" || return 1
+else
+    ADD_TO_WORK_DIR "pa2qxxx" "system" \
+        "system/priv-app/wallpaper-res/wallpaper-res.apk" 0 0 644 "u:object_r:system_file:s0"
+    DECODE_APK "system" "system/priv-app/wallpaper-res/wallpaper-res.apk"
+    for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/drawable-nodpi/dex_wallpaper_"*.webp; do
+        COMPRESS_WEBP "$f"
+    done
+    for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/drawable-nodpi/wallpaper_"*.webp; do
+        COMPRESS_WEBP "$f"
+    done
+    for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/raw/video_"*.mp4; do
+        ENCODE_MP4 "$f"
+    done
+    APPLY_PATCH "system" "system/priv-app/wallpaper-res/wallpaper-res.apk" \
+    "$MODPATH/wallpaper-res.apk/0001-Adjust-metadata-for-60fps-video-files.patch"
+fi
+
 LOG "- Downloading latest Samsung Wallpaper app"
 DOWNLOAD_FILE "$(GET_GALAXY_STORE_DOWNLOAD_URL "000008552712")" \
     "$WORK_DIR/system/system/priv-app/SpriteWallpaper/SpriteWallpaper.apk"
@@ -87,7 +97,5 @@ APPLY_PATCH "system" "system/priv-app/SpriteWallpaper/SpriteWallpaper.apk" \
     "$MODPATH/SpriteWallpaper.apk/0001-Force-Paradigm-wallpapers-motion-animator.patch"
 APPLY_PATCH "system" "system/priv-app/SpriteWallpaper/SpriteWallpaper.apk" \
     "$MODPATH/SpriteWallpaper.apk/0002-Adjust-motion-animator-for-60fps-video-files.patch"
-APPLY_PATCH "system" "system/priv-app/wallpaper-res/wallpaper-res.apk" \
-    "$MODPATH/wallpaper-res.apk/0001-Adjust-metadata-for-60fps-video-files.patch"
 
 unset -f ENCODE_MP4 COMPRESS_WEBP
