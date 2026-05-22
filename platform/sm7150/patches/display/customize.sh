@@ -6,7 +6,7 @@ DELETE_FROM_WORK_DIR "vendor" "etc/init/android.hardware.graphics.composer@2.4-s
 DELETE_FROM_WORK_DIR "vendor" "etc/vintf/manifest/android.hardware.graphics.composer-qti-display.xml"
 LOG_STEP_OUT
 
-LOG_STEP_IN "- Adding AIDL display composer from r9qxxx"
+LOG_STEP_IN "- Adding AIDL display composer from source"
 
 BLOBS_LIST="
 bin/hw/vendor.display.color@1.0-service
@@ -65,7 +65,7 @@ lib64/hw/android.hardware.graphics.mapper@4.0-impl-qti-display.so
 
 for blob in $BLOBS_LIST
 do
-    ADD_TO_WORK_DIR "r9qxxx" "vendor" "$blob"
+    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "$blob"
 done
 
 # Fix WaitSync() timeout
