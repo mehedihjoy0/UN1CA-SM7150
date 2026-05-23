@@ -9,8 +9,6 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix:
-        target: [a52sxq, a73xq, b0q, g0q, m51, m52xq, o1s, p3s, r0q, r9s, t2s]
 
     steps:
       - name: Checkout repo
@@ -56,20 +54,34 @@ jobs:
 
       - name: Build dependencies
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           ./scripts/build_dependencies.sh
 
       - name: Download stock firmwares
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           ./scripts/download_fw.sh
 
       - name: Extract stock firmwares
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           ./scripts/extract_fw.sh
 
       - name: Build ROM
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
-          ./scripts/make_rom.sh
+          source ./buildenv.sh m51
+          ./scripts/make_rom.sh --build-rom-zip
+
+      - name: Upload ROM to PixelDrain
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+        run: |
+          curl -L https://github.com/jkawamoto/go-pixeldrain/releases/download/v0.7.6/pd_0.7.6_linux_amd64.tar.gz -o pd.tar.gz
+          tar -xvf pd.tar.gz
+          chmod +x pd
+          sudo mv pd /usr/local/bin/pd
+          for ROM_FILE in out/UN1CA*.zip out/*target*.zip; do
+            [ -e "$ROM_FILE" ] || continue
+            echo "Uploading $ROM_FILE to PixelDrain..."
+            pd --api-key "$PIXELDRAIN_API_KEY" upload "$ROM_FILE" | sed 's|api/file|u|g'
+          done
