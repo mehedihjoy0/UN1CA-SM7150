@@ -1,0 +1,12 @@
+system 0 0 755 capabilities=0x0
+system/etc 0 0 755 capabilities=0x0
+system/etc/floating_feature.xml 0 0 644 capabilities=0x0
+system/priv-app 0 0 755 capabilities=0x0
+system/priv-app/BixbyInterpreter 0 0 755 capabilities=0x0
+system/priv-app/BixbyInterpreter/BixbyInterpreter.apk 0 0 644 capabilities=0x0
+system/priv-app/PhotoEditor_AIFull 0 0 755 capabilities=0x0
+system/priv-app/PhotoEditor_AIFull/PhotoEditor_AIFull.apk 0 0 644 capabilities=0x0
+system/priv-app/Routines 0 0 755 capabilities=0x0
+system/priv-app/Routines/Routines.apk 0 0 644 capabilities=0x0
+system/priv-app/SecSettings 0 0 755 capabilities=0x0
+system/priv-app/SecSettings/SecSettings.apk 0 0 644 capabilities=0x0

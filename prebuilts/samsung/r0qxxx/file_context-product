@@ -1,0 +1,8 @@
+/product u:object_r:system_file:s0
+/product/etc u:object_r:system_file:s0
+/product/etc/sysconfig u:object_r:system_file:s0
+/product/etc/sysconfig/google_searcle\.xml u:object_r:system_file:s0
+/product/etc/sysconfig/sysconfig_gemini\.xml u:object_r:system_file:s0
+/product/etc/sysconfig/sysconfig_contextual_search\.xml u:object_r:system_file:s0
+/product/overlay u:object_r:system_file:s0
+/product/overlay/DefaultContextualSearchOverlay\.apk u:object_r:system_file:s0
