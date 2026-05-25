@@ -256,7 +256,7 @@ index 00000000..03068681
 +    :cond_5
 +    sget-object p0, Landroid/os/Build;->MODEL:Ljava/lang/String;
 +
-+    const-string v1, "SM-S901"
++    const-string v1, "SM-S938"
 +
 +    invoke-virtual {p0, v1}, Ljava/lang/String;->startsWith(Ljava/lang/String;)Z
 +
