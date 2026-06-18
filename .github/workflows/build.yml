@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-24.04
 
     strategy:
-      fail-fast: false
       matrix:
-        target: [a52sxq, a53x, a73xq, b0q, g0q, m51, m52xq, o1s, p3s, r0q, r9s, t2s]
+        build_type: [encrypted, decrypted]
+      fail-fast: false
 
     steps:
       - name: Checkout repo
@@ -56,20 +56,37 @@ jobs:
 
       - name: Build dependencies
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           ./scripts/build_dependencies.sh
 
       - name: Download stock firmwares
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           ./scripts/download_fw.sh
 
       - name: Extract stock firmwares
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           ./scripts/extract_fw.sh
+
+      - name: Configure encryption state
+        if: matrix.build_type == 'encrypted'
+        run: |
+          source ./buildenv.sh m51
+          touch target/m51/patches/dfe/disable
+          sed -i 's|decrypted|encrypted|g' scripts/build_flashable_zip.sh
 
       - name: Build ROM
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
-          ./scripts/make_rom.sh
+          source ./buildenv.sh m51
+          ./scripts/make_rom.sh --build-rom-zip
+
+      - name: Upload ROM to PixelDrain
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+        run: |
+          curl -sL https://github.com/jkawamoto/go-pixeldrain/releases/download/v0.7.6/pd_0.7.6_linux_amd64.tar.gz | tar -xz pd
+          for ROM in out/UN1CA*.zip out/*target*.zip; do
+            echo "Uploading $ROM to PixelDrain..."
+            ./pd --api-key "$PIXELDRAIN_API_KEY" upload "$ROM" | sed 's|api/file|u|g'
+          done
