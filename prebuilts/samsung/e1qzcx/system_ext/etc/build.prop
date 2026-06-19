@@ -1,0 +1,28 @@
+####################################
+# from generate-common-build-props
+# These properties identify this partition image.
+####################################
+ro.product.system_ext.brand=samsung
+ro.product.system_ext.device=qssi_64
+ro.product.system_ext.manufacturer=samsung
+ro.product.system_ext.model=SM-S9210
+ro.product.system_ext.name=e1qzcx
+ro.system_ext.build.date=Wed May 20 12:23:25 KST 2026
+ro.system_ext.build.date.utc=1779247405
+ro.system_ext.build.fingerprint=samsung/e1qzcx/qssi_64:16/BP4A.251205.006/S9210ZCS6DZE2:user/release-keys
+ro.system_ext.build.id=BP4A.251205.006
+ro.system_ext.build.tags=release-keys
+ro.system_ext.build.type=user
+ro.system_ext.build.version.incremental=S9210ZCS6DZE2
+ro.system_ext.build.version.release=16
+ro.system_ext.build.version.release_or_codename=16
+ro.system_ext.build.version.sdk=36
+ro.system_ext.build.version.sdk_full=36.1
+####################################
+# from variable PRODUCT_SYSTEM_EXT_PROPERTIES
+####################################
+ro.config.isolated_compilation_enabled=true
+ro.audio.ihaladaptervendorextension_enabled=true
+persist.vendor.dpm.feature=11
+# end of file
+
