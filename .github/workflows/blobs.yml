@@ -11,6 +11,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - module: "Galaxy A17 5G (a17xxx)"
+            device: "a17xxx"
+            firmware: "SM-A176B/INS/350042791234568"
           - module: "Galaxy A53 5G (a53xtfn)"
             device: "a53xtfn"
             firmware: "SM-S536DL/TFA/352574701234567"
