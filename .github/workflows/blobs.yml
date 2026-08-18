@@ -11,6 +11,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - module: "Galaxy S25 (pa1qxxx)"
+            device: "pa1qxxx"
+            firmware: "SM-S931B/EUX/35046667187284"
           - module: "Galaxy A17 5G (a17xxx)"
             device: "a17xxx"
             firmware: "SM-A176B/INS/350042791234568"
