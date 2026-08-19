@@ -20,36 +20,16 @@ jobs:
           done < <(find platform scripts target unica -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
           exit $CODE
 
-  generate-matrix:
-    name: Generate matrix
-    needs: shellcheck
-    runs-on: ubuntu-24.04
-
-    outputs:
-      matrix: ${{ steps.generate-matrix.outputs.matrix }}
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-
-      - name: Generate CI matrix
-        id: generate-matrix
-        run: |
-          matrix="$(find target -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
-            | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')"
-          echo "$matrix"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-
   build:
     name: Build
-    needs: [shellcheck, generate-matrix]
+    needs: shellcheck
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
-
+        build_type: [encrypted, decrypted]
+        target: [m51]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
@@ -94,7 +74,7 @@ jobs:
 
       - name: Generate build config
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           {
             echo "DEBUG=$DEBUG"
             echo "SRC_DIR=$SRC_DIR"
@@ -123,5 +103,22 @@ jobs:
       - name: Extract stock firmwares
         run: ./scripts/extract_fw.sh
 
+      - name: Configure encryption state
+        if: matrix.build_type == 'encrypted'
+        run: |
+          source ./buildenv.sh m51
+          touch target/m51/patches/dfe/disable
+          sed -i 's|decrypted|encrypted|g' scripts/build_flashable_zip.sh
+
       - name: Build ROM
-        run: ./scripts/make_rom.sh
+        run: ./scripts/make_rom.sh --build-rom-zip
+
+      - name: Upload ROM to PixelDrain
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+        run: |
+          curl -sL https://github.com/jkawamoto/go-pixeldrain/releases/download/v0.7.6/pd_0.7.6_linux_amd64.tar.gz | tar -xz pd
+          for ROM in out/UN1CA*.zip out/*target*.zip; do
+            echo "Uploading $ROM to PixelDrain..."
+            ./pd --api-key "$PIXELDRAIN_API_KEY" upload "$ROM" | sed 's|api/file|u|g'
+          done

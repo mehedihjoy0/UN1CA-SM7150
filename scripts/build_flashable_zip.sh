@@ -63,6 +63,7 @@ PREPARE_SCRIPT()
         OUTPUT_FILE+="$(date -d "@$(grep "^timestamp" <<< "$TARGET_BUILD_INFO" | cut -d "=" -f 2 -s)" "+%Y%m%d")"
         OUTPUT_FILE+="_"
         OUTPUT_FILE+="$(grep "^device" <<< "$TARGET_BUILD_INFO" | cut -d "=" -f 2 -s)"
+        OUTPUT_FILE+="-decrypted"
         if $INCREMENTAL; then
             local SOURCE_BUILD_INFO
 
