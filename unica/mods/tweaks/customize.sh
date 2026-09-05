@@ -8,3 +8,9 @@ APPLY_PATCH "system" "system/framework/services.jar" \
 if [ "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FMRADIO_CONFIG_AVOID_REGION")" ]; then
     SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FMRADIO_CONFIG_AVOID_REGION" --delete
 fi
+
+LOG_STEP_IN "- Allowing doze for all apps"
+EVAL "sed -i -E '/<(allow-(in-(power|data-usage)-save|(unthrottled|ignore)-location)|bg-restriction-exemption)/,/\\/>/d' \"$WORK_DIR\"/**/etc/{permissions,sysconfig}/*.xml"
+
+EVAL "sed -i '/<reviewed-in-power-save/,/\/>/d' \"$WORK_DIR\"/system/system/etc/deviceidle/reviewed_allowlist.xml"
+LOG_STEP_OUT
