@@ -14,3 +14,28 @@ EVAL "sed -i -E '/<(allow-(in-(power|data-usage)-save|(unthrottled|ignore)-locat
 
 EVAL "sed -i '/<reviewed-in-power-save/,/\/>/d' \"$WORK_DIR\"/system/system/etc/deviceidle/reviewed_allowlist.xml"
 LOG_STEP_OUT
+
+# https://github.com/rushiranpise/sorry-google
+LOG "- Replacing AndroidSystemKeyVerifier with stub"
+CONTACTKEYS=$(curl -s ${GITHUB_TOKEN:+-H Authorization: token $GITHUB_TOKEN} \
+    "https://api.github.com/repos/rushiranpise/sorry-google/releases/latest" |
+    grep -o 'https://[^"]*contactkeys[^"]*\.apk' | head -n1)
+DOWNLOAD_FILE "$CONTACTKEYS" "$WORK_DIR/system/system/app/AndroidSystemKeyVerifier/AndroidSystemKeyVerifier.apk"
+SET_METADATA "system" "system/app/AndroidSystemKeyVerifier" 0 0 755 "u:object_r:system_file:s0"
+SET_METADATA "system" "system/app/AndroidSystemKeyVerifier/AndroidSystemKeyVerifier.apk" 0 0 644 "u:object_r:system_file:s0"
+
+LOG "- Replacing AndroidSystemSafetyCore with stub"
+SAFETYCORE=$(curl -s ${GITHUB_TOKEN:+-H Authorization: token $GITHUB_TOKEN} \
+    "https://api.github.com/repos/rushiranpise/sorry-google/releases/latest" |
+    grep -o 'https://[^"]*safetycore[^"]*\.apk' | head -n1)
+DOWNLOAD_FILE "$SAFETYCORE" "$WORK_DIR/system/system/app/AndroidSystemSafetyCore/AndroidSystemSafetyCore.apk"
+SET_METADATA "system" "system/app/AndroidSystemSafetyCore" 0 0 755 "u:object_r:system_file:s0"
+SET_METADATA "system" "system/app/AndroidSystemSafetyCore/AndroidSystemSafetyCore.apk" 0 0 644 "u:object_r:system_file:s0"
+
+LOG "- Replacing AndroidSystemKeyVerifier with stub"
+VERIFIER=$(curl -s ${GITHUB_TOKEN:+-H Authorization: token $GITHUB_TOKEN} \
+    "https://api.github.com/repos/rushiranpise/sorry-google/releases/latest" |
+    grep -o 'https://[^"]*verifier[^"]*\.apk' | head -n1)
+DOWNLOAD_FILE "$VERIFIER" "$WORK_DIR/system/system/app/AndroidSystemKeyVerifier/AndroidSystemKeyVerifier.apk"
+SET_METADATA "system" "system/app/AndroidSystemKeyVerifier" 0 0 755 "u:object_r:system_file:s0"
+SET_METADATA "system" "system/app/AndroidSystemKeyVerifier/AndroidSystemKeyVerifier.apk" 0 0 644 "u:object_r:system_file:s0"
