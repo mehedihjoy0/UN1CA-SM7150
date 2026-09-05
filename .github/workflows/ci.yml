@@ -111,7 +111,7 @@ jobs:
           sed -i 's|decrypted|encrypted|g' scripts/build_flashable_zip.sh
 
       - name: Build ROM
-        run: ./scripts/make_rom.sh --build-rom-zip
+        run: ./scripts/make_rom.sh
 
       - name: Upload ROM to PixelDrain
         env:
