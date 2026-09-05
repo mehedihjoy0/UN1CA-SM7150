@@ -1,0 +1,16 @@
+vendor/bin 0 2000 0751 capabilities=0x0
+vendor/bin/hw 0 2000 0751 capabilities=0x0
+vendor/bin/hw/rild 0 2000 0755 capabilities=0x0
+vendor/etc 0 2000 0755 capabilities=0x0
+vendor/etc/init 0 2000 0755 capabilities=0x0
+vendor/etc/init/init.vendor.rilchip.rc 0 0 0644 capabilities=0x0
+vendor/etc/init/init.vendor.rilcommon.rc 0 0 0644 capabilities=0x0
+vendor/lib64 0 2000 0755 capabilities=0x0
+vendor/lib64/libSemDataProps.so 0 0 0644 capabilities=0x0
+vendor/lib64/libSemTelephonyProps.so 0 0 0644 capabilities=0x0
+vendor/lib64/libqmiservices-ext.so 0 0 0644 capabilities=0x0
+vendor/lib64/libqmiservices.so 0 0 0644 capabilities=0x0
+vendor/lib64/libril_sem.so 0 0 0644 capabilities=0x0
+vendor/lib64/libsec-ril.so 0 0 0644 capabilities=0x0
+vendor/lib64/libsecril-client.so 0 0 0644 capabilities=0x0
+vendor/lib64/libsemnativecarrierfeature.so 0 0 0644 capabilities=0x0
