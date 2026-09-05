@@ -1,0 +1,17 @@
+# Copyright (c) 2025 Salvo Giangreco
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# SEC Floating Feature configuration file for Qualcomm Snapdragon 730G devices (sm7150)
+
+# Display
+SEC_FLOATING_FEATURE_COMMON_CONFIG_MDNIE_MODE=62481
+
+# High Performance Mode
+SEC_FLOATING_FEATURE_COMMON_SUPPORT_HIGH_PERFORMANCE_MODE=TRUE
+SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_CPU_RESPONSIVENESS=TRUE
+
+# Enable Video brightness feature
+SEC_FLOATING_FEATURE_COMMON_SUPPORT_HDR_EFFECT=true
+
+# Enable Extra Brightness feature
+SEC_FLOATING_FEATURE_LCD_SUPPORT_EXTRA_BRIGHTNESS=TRUE

@@ -1,0 +1,22 @@
+LOG_STEP_IN "- Adding 32-bit WFD libs from extra"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/bin/insthk"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/bin/remotedisplay"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/lib/libhdcp2.so"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/lib/libremotedisplay_wfd.so"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/lib/libremotedisplayservice.so"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/lib/libsecuibc.so"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/lib/libstagefright_hdcp.so"
+ADD_TO_WORK_DIR "$TARGET_EXTRA_FIRMWARES" "system" "system/lib/wfd_log.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libhdcp_client_aidl.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libhdcp2.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libremotedisplay_wfd.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libremotedisplayservice.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libsecuibc.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/libstagefright_hdcp.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/vendor.samsung.hardware.security.hdcp.wifidisplay-V2-ndk.so"
+DELETE_FROM_WORK_DIR "system" "system/lib64/wfd_log.so"
+LOG_STEP_OUT
+
+LOG_STEP_IN "- Adding wpa_supplicant from a73xqxx"
+ADD_TO_WORK_DIR "a73xqxx" "vendor" "bin/hw/wpa_supplicant"
+LOG_STEP_OUT

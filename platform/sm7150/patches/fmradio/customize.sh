@@ -1,0 +1,10 @@
+LOG_STEP_IN "- Adding FM Radio libs from a52qnsxx"
+ADD_TO_WORK_DIR "a52qnsxx" "system" "system/lib/libfmradio_jni.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system" "system/lib64/libfmradio_jni.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system_ext" "lib/fm_helium.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system_ext" "lib/libfm-hci.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system_ext" "lib/vendor.qti.hardware.fm@1.0.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system_ext" "lib64/fm_helium.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system_ext" "lib64/libfm-hci.so"
+ADD_TO_WORK_DIR "a52qnsxx" "system_ext" "lib64/vendor.qti.hardware.fm@1.0.so"
+LOG_STEP_OUT
