@@ -1,0 +1,4 @@
+id=btaudio
+name=Bluetooth Audio HAL
+author=mehedihjoy0
+description=Adds missing bluetooth audio HAL.
