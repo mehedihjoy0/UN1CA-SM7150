@@ -1,0 +1,4 @@
+id=hwui
+name=HWUI
+author=salvogiangri
+description=Replaces hwui libs with required ones.
