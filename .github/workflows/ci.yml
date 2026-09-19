@@ -17,11 +17,16 @@ jobs:
           CODE=0
           while IFS= read -r f; do
             shellcheck -e SC1090,SC1091 -s bash "$f" || CODE=1
-          done < <(find platform scripts target unica -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
+          done < <(
+            find platform scripts target unica \
+              -name "*.sh" \
+              -not -name "*ssi.sh" \
+              -not -name "config.sh"
+          )
           exit $CODE
 
   build:
-    name: Build
+    name: Build ${{ matrix.build_type }}
     needs: shellcheck
     runs-on: ubuntu-24.04
 
@@ -30,15 +35,20 @@ jobs:
       matrix:
         build_type: [encrypted, decrypted]
         target: [m51]
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
       - name: Free disk space (1/3)
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo rm -rf \
+            /usr/share/dotnet \
+            /usr/local/lib/android \
+            /opt/ghc \
+            /opt/hostedtoolcache/CodeQL
           sudo docker image prune --all --force
           sudo docker builder prune -a
 
@@ -58,23 +68,31 @@ jobs:
           DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
             attr ccache clang ffmpeg libbrotli-dev libbz2-dev \
             libgtest-dev libprotobuf-dev libunwind-dev libpcre2-dev \
-            libzstd-dev linux-modules-extra-$(uname -r) lld protobuf-compiler webp
+            libzstd-dev linux-modules-extra-$(uname -r) lld \
+            protobuf-compiler webp jq
+
           sudo modprobe erofs f2fs
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          echo -n "${{ secrets.PLATFORM_KEY_PK8 }}" | base64 --decode > security/unica_platform.pk8
-          echo -n "${{ secrets.PLATFORM_KEY_PEM }}" | base64 --decode > security/unica_platform.x509.pem
+
+          echo -n "${{ secrets.PLATFORM_KEY_PK8 }}" \
+            | base64 --decode > security/unica_platform.pk8
+
+          echo -n "${{ secrets.PLATFORM_KEY_PEM }}" \
+            | base64 --decode > security/unica_platform.x509.pem
 
       - name: Set up JDK 17
         uses: actions/setup-java@v6
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
-          cache: 'gradle'
+          cache: gradle
 
       - name: Generate build config
         run: |
           source ./buildenv.sh m51
+
           {
             echo "DEBUG=$DEBUG"
             echo "SRC_DIR=$SRC_DIR"
@@ -86,7 +104,12 @@ jobs:
             echo "WORK_DIR=$WORK_DIR"
             echo "TMP_DIR=$TMP_DIR"
           } >> "$GITHUB_ENV"
-          sed -e "/Automatically/d" -e "s/\"//g" "$OUT_DIR/config.sh" >> "$GITHUB_ENV"
+
+          sed \
+            -e "/Automatically/d" \
+            -e "s/\"//g" \
+            "$OUT_DIR/config.sh" >> "$GITHUB_ENV"
+
           echo "$TOOLS_DIR/bin" >> "$GITHUB_PATH"
 
       - name: Build dependencies
@@ -110,15 +133,192 @@ jobs:
           touch target/m51/patches/dfe/disable
           sed -i 's|decrypted|encrypted|g' scripts/build_flashable_zip.sh
 
+      # ---------------------------------------------------------
+      # BUILD CURRENT ROM
+      # ---------------------------------------------------------
+
       - name: Build ROM
-        run: ./scripts/make_rom.sh --build-rom-zip
+        run: |
+          ./scripts/make_rom.sh --build-rom-zip
+
+      - name: Find current target-files
+        id: current
+        run: |
+          CURRENT_TARGET="$(find "$OUT_DIR" \
+            -maxdepth 1 \
+            -type f \
+            -name 'm51_*target_files.zip' \
+            -print \
+            | head -n 1)"
+
+          if [ -z "$CURRENT_TARGET" ]; then
+            echo "Current target_files.zip not found"
+            exit 1
+          fi
+
+          echo "file=$CURRENT_TARGET" >> "$GITHUB_OUTPUT"
+
+          echo "Current target:"
+          echo "$CURRENT_TARGET"
+
+      # ---------------------------------------------------------
+      # FIND PREVIOUS TARGET-FILES DIRECTLY FROM PIXELDRAIN
+      # ---------------------------------------------------------
+
+      - name: Find previous target-files on PixelDrain
+        id: previous
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+        run: |
+          set -e
+
+          echo "Querying PixelDrain account..."
+
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            -u ":$PIXELDRAIN_API_KEY" \
+            "https://pixeldrain.com/api/user/files" \
+            -o "$RUNNER_TEMP/pixeldrain-files.json"
+
+          PREVIOUS_ID="$(
+            jq -r '
+              .files
+              | map(
+                  select(
+                    (.name | test("^m51_.*target_files\\.zip$"))
+                  )
+                )
+              | sort_by(.date_upload)
+              | if length > 0 then .[-1].id else empty end
+            ' "$RUNNER_TEMP/pixeldrain-files.json"
+          )"
+
+          if [ -z "$PREVIOUS_ID" ]; then
+            echo "No previous m51 target-files ZIP found."
+            echo "has_previous=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PREVIOUS_NAME="$(
+            jq -r --arg id "$PREVIOUS_ID" '
+              .files[]
+              | select(.id == $id)
+              | .name
+            ' "$RUNNER_TEMP/pixeldrain-files.json"
+          )"
+
+          echo "Previous target:"
+          echo "$PREVIOUS_NAME"
+          echo "PixelDrain ID:"
+          echo "$PREVIOUS_ID"
+
+          echo "id=$PREVIOUS_ID" >> "$GITHUB_OUTPUT"
+          echo "name=$PREVIOUS_NAME" >> "$GITHUB_OUTPUT"
+          echo "has_previous=true" >> "$GITHUB_OUTPUT"
+
+      # ---------------------------------------------------------
+      # DOWNLOAD PREVIOUS TARGET-FILES
+      # ---------------------------------------------------------
+
+      - name: Download previous target-files
+        if: steps.previous.outputs.has_previous == 'true'
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+          PREVIOUS_ID: ${{ steps.previous.outputs.id }}
+        run: |
+          set -e
+
+          mkdir -p "$RUNNER_TEMP/previous"
+
+          echo "Downloading:"
+          echo "${{ steps.previous.outputs.name }}"
+
+          curl \
+            --fail \
+            --location \
+            --retry 5 \
+            --retry-delay 5 \
+            -u ":$PIXELDRAIN_API_KEY" \
+            "https://pixeldrain.com/api/file/$PREVIOUS_ID?download" \
+            -o "$RUNNER_TEMP/previous/target_files.zip"
+
+          test -s "$RUNNER_TEMP/previous/target_files.zip"
+
+          echo "Downloaded:"
+          ls -lh "$RUNNER_TEMP/previous/target_files.zip"
+
+      # ---------------------------------------------------------
+      # BUILD INCREMENTAL OTA USING UN1CA SCRIPT
+      # ---------------------------------------------------------
+
+      - name: Build incremental OTA
+        if: steps.previous.outputs.has_previous == 'true'
+        run: |
+          set -e
+
+          OLD_TARGET="$RUNNER_TEMP/previous/target_files.zip"
+          NEW_TARGET="${{ steps.current.outputs.file }}"
+
+          echo "OLD:"
+          echo "$OLD_TARGET"
+
+          echo "NEW:"
+          echo "$NEW_TARGET"
+
+          "$SRC_DIR/scripts/internal/build_incremental_ota_zip.sh" \
+            "$OLD_TARGET" \
+            "$NEW_TARGET"
+
+          echo "Incremental OTA output:"
+          find "$OUT_DIR" -maxdepth 1 -type f \
+            \( -name '*incremental*.zip' -o -name '*increment*.zip' \) \
+            -print
+
+      # ---------------------------------------------------------
+      # SHOW OUTPUT
+      # ---------------------------------------------------------
+
+      - name: Calculate hashes
+        run: |
+          echo "===== OTA FILES ====="
+
+          find "$OUT_DIR" -maxdepth 1 -type f -name '*.zip' -print0 |
+          while IFS= read -r -d '' FILE; do
+            echo
+            echo "FILE: $FILE"
+            stat -c 'SIZE: %s' "$FILE"
+            sha256sum "$FILE"
+          done
+
+      # ---------------------------------------------------------
+      # UPLOAD EVERYTHING TO PIXELDRAIN
+      # ---------------------------------------------------------
 
       - name: Upload ROM to PixelDrain
         env:
           PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
         run: |
-          curl -sL https://github.com/jkawamoto/go-pixeldrain/releases/download/v0.7.6/pd_0.7.6_linux_amd64.tar.gz | tar -xz pd
-          for ROM in out/UN1CA*.zip out/*target*.zip; do
-            echo "Uploading $ROM to PixelDrain..."
-            ./pd --api-key "$PIXELDRAIN_API_KEY" upload "$ROM" | sed 's|api/file|u|g'
+          set -e
+
+          curl -sL \
+            https://github.com/jkawamoto/go-pixeldrain/releases/download/v0.7.6/pd_0.7.6_linux_amd64.tar.gz \
+            | tar -xz pd
+
+          for ROM in \
+            "$OUT_DIR"/UN1CA*.zip \
+            "$OUT_DIR"/*target_files.zip \
+            "$OUT_DIR"/*incremental*.zip \
+            "$OUT_DIR"/*increment*.zip
+          do
+            [ -f "$ROM" ] || continue
+
+            echo "Uploading:"
+            echo "$ROM"
+
+            ./pd \
+              --api-key "$PIXELDRAIN_API_KEY" \
+              upload "$ROM" \
+              | sed 's|api/file|u|g'
           done
