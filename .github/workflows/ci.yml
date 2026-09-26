@@ -20,41 +20,17 @@ jobs:
           done < <(find platform scripts target unica -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
           exit $CODE
 
-  generate-matrix:
-    name: Generate matrix
-    needs: shellcheck
-    runs-on: ubuntu-24.04
-
-    outputs:
-      matrix: ${{ steps.generate-matrix.outputs.matrix }}
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-
-      - name: Generate CI matrix
-        id: generate-matrix
-        run: |
-          matrix="$(find target -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
-            | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')"
-          echo "$matrix"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-
   build:
     name: Build
-    needs: [shellcheck, generate-matrix]
+    needs: shellcheck
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
-
+        build_type: [encrypted, decrypted]
+        target: [m51]
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          submodules: 'recursive'
 
       - name: Free disk space (1/3)
         run: |
@@ -71,6 +47,12 @@ jobs:
         uses: rokibhasansagar/slimhub_actions@main
         with:
           retain: 'compiler_cmake'
+
+      - name: Checkout repo
+        uses: actions/checkout@v7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 1
 
       - name: Set up build environment
         run: |
@@ -94,7 +76,7 @@ jobs:
 
       - name: Generate build config
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh m51
           {
             echo "DEBUG=$DEBUG"
             echo "SRC_DIR=$SRC_DIR"
@@ -122,6 +104,19 @@ jobs:
 
       - name: Extract stock firmwares
         run: ./scripts/extract_fw.sh
+
+      - name: Configure encryption state
+        run: |
+          if [ "${{ matrix.build_type }}" = "encrypted" ]; then
+            sed -i '/device/a        OUTPUT_FILE+="-encrypted"' scripts/build_flashable_zip.sh
+            sed -i 's|"-target_files.zip"|"-target_files-encrypted.zip"|g' scripts/make_rom.sh
+            sed -i 's|manifest.json|manifest-encrypted.json|g' unica/mods/choidujour/customize.sh
+          else
+            rm -f target/m51/patches/dfe/disable
+            sed -i '/device/a        OUTPUT_FILE+="-decrypted"' scripts/build_flashable_zip.sh
+            sed -i 's|"-target_files.zip"|"-target_files-decrypted.zip"|g' scripts/make_rom.sh
+            sed -i 's|manifest.json|manifest-decrypted.json|g' unica/mods/choidujour/customize.sh
+          fi
 
       - name: Build ROM
         run: ./scripts/make_rom.sh
