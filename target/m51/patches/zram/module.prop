@@ -1,0 +1,4 @@
+id=zram
+name=Zram Tweaks
+author=mehedihjoy0
+description=Set zram size to 0
