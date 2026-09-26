@@ -11,8 +11,6 @@ FORCE=false
 FIRMWARES=()
 MODEL=""
 CSC=""
-IMEI=""
-SERIAL_NO=""
 LATEST_FIRMWARE=""
 ZIP_FILE=""
 
@@ -149,12 +147,18 @@ for i in "${FIRMWARES[@]}"; do
     fi
 
     LOG "- Downloading firmware..."
-    [ -f "$ODIN_DIR/${MODEL}_${CSC}/.downloaded" ] && rm -rf "$ODIN_DIR/${MODEL}_${CSC}"
+    # Clean up any previous attempts in the target directory
+    rm -rf "$ODIN_DIR/${MODEL}_${CSC}"
     mkdir -p "$ODIN_DIR/${MODEL}_${CSC}"
-    # Anan's samloader stores its logs in the current working directory, let's move into OUT_DIR just for this time
+
+    # Download samloader 
+    curl -sSLf "https://github.com/topjohnwu/samloader-rs/releases/download/2.0.0/samloader-v2.0.0-linux-x86_64.tar.xz" | tar -xJ -C "$TOOLS_DIR"
+
+    # Download firmware into destination folder and create completion marker
     (
-    cd "$OUT_DIR" || exit 1
-    samloader -m "$MODEL" -r "$CSC" -i "$IMEI" -s "$SERIAL_NO" download -O "$ODIN_DIR/${MODEL}_${CSC}" 1> /dev/null || exit 1
+        cd "$ODIN_DIR/${MODEL}_${CSC}" || exit 1
+        "$TOOLS_DIR/samloader" download --model "$MODEL" --region "$CSC" || exit 1
+        touch .downloaded
     )
 
     ZIP_FILE="$(find "$ODIN_DIR/${MODEL}_${CSC}" -name "*.zip" | sort -r | head -n 1)"
