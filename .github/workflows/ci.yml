@@ -2,6 +2,22 @@ name: CI
 
 on:
   workflow_dispatch:
+    inputs:
+      release_rom:
+        description: "Release this ROM"
+        required: true
+        default: false
+        type: boolean
+      changelog:
+        description: "Changelog for this release"
+        required: false
+        default: ""
+        type: string
+      incremental_ota:
+        description: "Build incremental OTA"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   shellcheck:
@@ -58,7 +74,7 @@ jobs:
         run: |
           sudo apt update
           DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
-            attr ccache clang ffmpeg libbrotli-dev libbz2-dev \
+            attr ccache clang ffmpeg gh libbrotli-dev libbz2-dev \
             libgtest-dev libprotobuf-dev libunwind-dev libpcre2-dev \
             libzstd-dev linux-modules-extra-$(uname -r) lld protobuf-compiler webp
           sudo modprobe erofs f2fs
@@ -119,4 +135,19 @@ jobs:
           fi
 
       - name: Build ROM
-        run: ./scripts/make_rom.sh
+        run: |
+          if [ "${{ inputs.incremental_ota }}" = "true" ]; then
+            ./scripts/make_rom.sh
+          else
+            ./scripts/make_rom.sh --build-rom-zip
+          fi
+
+      - name: Release this ROM
+        if: ${{ inputs.release_rom }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CHANGELOG_TEXT: ${{ inputs.changelog }}
+          BUILD_TYPE: ${{ matrix.build_type }}
+          INCREMENTAL_OTA: ${{ inputs.incremental_ota }}
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+        run: ./scripts/release_rom.sh
