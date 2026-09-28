@@ -8,63 +8,84 @@ shopt -s nullglob
 echo "- Resolving repository"
 REPOSITORY="$(git -C "$SRC_DIR" config --get remote.origin.url |
   sed -nE 's#^(https://github\.com/|git@github\.com:)([^/]+)/.*#\2#p')/static_resources"
-gh repo view "$REPOSITORY" >/dev/null 2>&1 || {
-  echo "- $REPOSITORY not found, forking"
-  gh repo fork https://github.com/UN1CA/static_resources --clone=false
-}
-
 BRANCH=sixteen
+BUILD_TYPE="${BUILD_TYPE:-encrypted}"
+BUILD_TYPE="-${BUILD_TYPE}"
 RELEASE_WORK_DIR="$(mktemp -d)"
-CHUNK_SIZE=1610612736
+CHUNK_SIZE="${CHUNK_SIZE:-1610612736}"
 RELEASE_CHUNKS_DIR="$RELEASE_WORK_DIR/chunks"
+CHANGELOG_TEXT="${CHANGELOG_TEXT:-}"
+MANIFEST_SRC_DIR="$OUT_DIR/.manifest_src"
+cleanup() { rm -rf "$RELEASE_WORK_DIR" "$MANIFEST_SRC_DIR"; }
+trap cleanup EXIT
 mkdir -p "$RELEASE_CHUNKS_DIR"
-trap 'rm -rf "$RELEASE_WORK_DIR"' EXIT
 
-TARGET_FILES=("$OUT_DIR"/*target*.zip)
-TARGET_FILE="${TARGET_FILES[0]}"
-TARGET_NAME="${TARGET_FILE##*/}"
+# Only pick up artifacts belonging to the version being released, this
+# prevents stale zips from previous builds from leaking into the release
+# and into the OTA manifest
+TARGET_FILES=("$OUT_DIR/${TARGET_CODENAME}_${ROM_VERSION}"-target*.zip)
+if [ "${#TARGET_FILES[@]}" -eq 0 ]; then
+  echo "ERROR: no target-files zip found for $ROM_VERSION in ${OUT_DIR/"$SRC_DIR"/}" >&2
+  exit 1
+fi
+TARGET_FILE="${TARGET_FILES[0]}"; TARGET_NAME="${TARGET_FILE##*/}"
 
-ROM_FILES=("$OUT_DIR"/UN1CA*.zip)
-ROM_FILE="${ROM_FILES[0]}"
-ROM_FILENAME="${ROM_FILE##*/}"
-echo "- Releasing: $ROM_FILENAME"
-
-UPLOAD_PATHS=()
-
-echo "- Preparing target"
-if [ "$(wc -c < "$TARGET_FILE")" -gt "$CHUNK_SIZE" ]; then
-  split -b "$CHUNK_SIZE" -d -a 2 "$TARGET_FILE" "$RELEASE_CHUNKS_DIR/$TARGET_NAME."
-  UPLOAD_PATHS+=("$RELEASE_CHUNKS_DIR/$TARGET_NAME".*)
-else
-  UPLOAD_PATHS+=("$TARGET_FILE")
+ROM_FILES=("$OUT_DIR"/UN1CA_"${ROM_VERSION}"_*.zip)
+if [ "${#ROM_FILES[@]}" -eq 0 ]; then
+  echo "ERROR: no ROM zip found for $ROM_VERSION in ${OUT_DIR/"$SRC_DIR"/}" >&2
+  exit 1
 fi
 
-echo "- Preparing ROM"
-for ROM_FILE in "${ROM_FILES[@]}"; do
-  ROM_FILENAME="${ROM_FILE##*/}"
-  if [ "$(wc -c < "$ROM_FILE")" -gt "$CHUNK_SIZE" ]; then
-    split -b "$CHUNK_SIZE" -d -a 2 "$ROM_FILE" "$RELEASE_CHUNKS_DIR/$ROM_FILENAME."
-    UPLOAD_PATHS+=("$RELEASE_CHUNKS_DIR/$ROM_FILENAME".*)
+UPLOAD_PATHS=()
+PREPARE_UPLOAD()
+{
+  local FILE="$1"
+  local NAME="${FILE##*/}"
+  if [ "$(wc -c < "$FILE")" -gt "$CHUNK_SIZE" ]; then
+    split -b "$CHUNK_SIZE" -d -a 2 "$FILE" "$RELEASE_CHUNKS_DIR/$NAME."
+    UPLOAD_PATHS+=("$RELEASE_CHUNKS_DIR/$NAME".*)
   else
-    UPLOAD_PATHS+=("$ROM_FILE")
+    UPLOAD_PATHS+=("$FILE")
   fi
+}
+
+echo "- Preparing target: $TARGET_NAME"
+PREPARE_UPLOAD "$TARGET_FILE"
+
+for ROM_FILE in "${ROM_FILES[@]}"; do
+  echo "- Releasing: ${ROM_FILE##*/}"
+  PREPARE_UPLOAD "$ROM_FILE"
 done
 
 echo "- Generating OTA manifest"
-mv "$TARGET_FILE" "$SRC_DIR/"
-"$SRC_DIR/scripts/generate_ota_manifest.sh" "$OUT_DIR"
+rm -rf "$MANIFEST_SRC_DIR"
+mkdir -p "$MANIFEST_SRC_DIR"
+for ROM_FILE in "${ROM_FILES[@]}"; do
+  # Hardlink (no extra disk usage), fall back to a copy across filesystems
+  ln -f "$ROM_FILE" "$MANIFEST_SRC_DIR/" 2>/dev/null || cp -a "$ROM_FILE" "$MANIFEST_SRC_DIR/"
+done
+# The target-files zip is deliberately left out of MANIFEST_SRC_DIR so it never
+# ends up in the OTA manifest, while staying in $OUT_DIR for the upload step
+"$SRC_DIR/scripts/generate_ota_manifest.sh" "$MANIFEST_SRC_DIR"
 MANIFEST="$SRC_DIR/manifest.json"
-mv "$SRC_DIR/$TARGET_NAME" "$OUT_DIR/"
 
-echo "- Injecting chunk URLs into manifest"
-python3 - "$MANIFEST" "$RELEASE_CHUNKS_DIR" "$REPOSITORY" "$ROM_VERSION" <<'PY'
-import json,glob,os,sys
-p,d,r,v=sys.argv[1:]; m=json.load(open(p,encoding="utf-8"))
-for e in m["response"]:
- f=e["filename"]; c=sorted(glob.glob(f"{d}/{f}.*"))
- e["urls"]=[f"https://github.com/{r}/releases/download/{v}/{os.path.basename(x)}" for x in c] or [f"https://github.com/{r}/releases/download/{v}/{f}"]
-json.dump(m,open(p,"w",encoding="utf-8"),indent=2,ensure_ascii=False)
-open(p,"a").write("\n")
+echo "- Injecting download URLs into manifest"
+python3 - "$MANIFEST" "https://github.com/$REPOSITORY/releases/download/$ROM_VERSION" "$RELEASE_CHUNKS_DIR" <<'PY'
+import glob, json, os, sys
+
+manifest, prefix, chunks_dir = sys.argv[1:4]
+with open(manifest, encoding="utf-8") as fh:
+    data = json.load(fh)
+for entry in data["response"]:
+    name = entry["filename"]
+    chunks = sorted(glob.glob(os.path.join(chunks_dir, name + ".*")))
+    if chunks:
+        entry["urls"] = [f"{prefix}/{os.path.basename(c)}" for c in chunks]
+    else:
+        entry["urls"] = [f"{prefix}/{name}"]
+with open(manifest, "w", encoding="utf-8") as fh:
+    json.dump(data, fh, indent=2, ensure_ascii=False)
+    fh.write("\n")
 PY
 
 echo "- Creating release $ROM_VERSION"
@@ -85,17 +106,24 @@ gh api "repos/$REPOSITORY/contents/$MANIFEST_PATH?ref=$BRANCH" --jq .content 2>/
   tr -d '\n' | base64 -d > "$CURRENT_MANIFEST" || true
 [ -s "$CURRENT_MANIFEST" ] || echo '{"response":[]}' > "$CURRENT_MANIFEST"
 
-echo "- Merging new entry into $MANIFEST_NAME"
+echo "- Merging new entries into $MANIFEST_NAME"
 python3 - "$CURRENT_MANIFEST" "$MANIFEST" "$UPDATED_MANIFEST" <<'PY'
-import json,re,sys
-c,n,o=sys.argv[1:]; s=open(c,encoding="utf-8").read()
-try: j=json.loads(s)
-except json.JSONDecodeError: j=json.loads(re.sub(r",(\s*[}\]])",r"\1",s))
-e=json.load(open(n,encoding="utf-8"))["response"]
-f={x["filename"] for x in e}
-j["response"]=[x for x in j.get("response",[]) if x.get("filename") not in f]+e
-json.dump(j,open(o,"w",encoding="utf-8"),indent=2,ensure_ascii=False)
-open(o,"a").write("\n")
+import json, re, sys
+
+current, new, out = sys.argv[1:4]
+raw = open(current, encoding="utf-8").read()
+try:
+    data = json.loads(raw)
+except json.JSONDecodeError:
+    data = json.loads(re.sub(r",(\s*[}\]])", r"\1", raw))
+entries = json.load(open(new, encoding="utf-8"))["response"]
+names = {entry["filename"] for entry in entries}
+data["response"] = [
+    entry for entry in data.get("response", []) if entry.get("filename") not in names
+] + entries
+with open(out, "w", encoding="utf-8") as fh:
+    json.dump(data, fh, indent=2, ensure_ascii=False)
+    fh.write("\n")
 PY
 
 echo "- Committing manifest and changelog"
@@ -116,10 +144,32 @@ REQUEST_BODY="$(jq -nc \
     fileChanges:{additions:[{path:$p1,contents:$c1},{path:$p2,contents:$c2}]},
     expectedHeadOid:$head
   }}}')"
+COMMIT_OID="$(echo "$REQUEST_BODY" | gh api graphql --input - --jq .data.createCommitOnBranch.commit.oid)"
+echo "- Commit done: $COMMIT_OID"
 
-echo "$REQUEST_BODY" | gh api graphql --input -
-echo "- Commit done"
+echo "- Verifying manifest update on $BRANCH"
+REMOTE_SHA="$(gh api "repos/$REPOSITORY/git/ref/heads/$BRANCH" --jq .object.sha)"
+if [ "$REMOTE_SHA" != "$COMMIT_OID" ]; then
+  echo "ERROR: $BRANCH points at $REMOTE_SHA instead of the new commit $COMMIT_OID" >&2
+  exit 1
+fi
+gh api "repos/$REPOSITORY/contents/$MANIFEST_PATH?ref=$BRANCH" --jq .content 2>/dev/null |
+  tr -d '\n' | base64 -d > "$RELEASE_WORK_DIR/remote_manifest.json" || true
+python3 - "$UPDATED_MANIFEST" "$RELEASE_WORK_DIR/remote_manifest.json" "$BRANCH" <<'PY'
+import json, sys
 
-echo "===== Final $MANIFEST_NAME ====="
-cat "$UPDATED_MANIFEST"
-echo "===================="
+local, remote, branch = sys.argv[1:4]
+expected = {entry["filename"] for entry in json.load(open(local))["response"]}
+try:
+    actual = {entry["filename"] for entry in json.load(open(remote))["response"]}
+except (FileNotFoundError, json.JSONDecodeError):
+    print("ERROR: remote manifest could not be fetched or is invalid", file=sys.stderr)
+    sys.exit(1)
+missing = expected - actual
+if missing:
+    print(f"ERROR: entries missing from remote manifest: {sorted(missing)}", file=sys.stderr)
+    sys.exit(1)
+print(f"- Verified {len(expected)} manifest entries on {branch}")
+PY
+
+echo "===== Final $MANIFEST_NAME ====="; cat "$UPDATED_MANIFEST"; echo "===================="
