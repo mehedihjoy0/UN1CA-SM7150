@@ -392,8 +392,8 @@ for i in "${FIRMWARES[@]}"; do
 
     DOWNLOADED_FIRMWARE="$(cat "$ODIN_DIR/${MODEL}_${CSC}/.downloaded")"
 
-    BL_TAR="$(find "$ODIN_DIR/${MODEL}_${CSC}" -name "BL_$(cut -d "/" -f 1 -s <<< "$DOWNLOADED_FIRMWARE")*.md5" | sort -r | head -n 1)"
-    AP_TAR="$(find "$ODIN_DIR/${MODEL}_${CSC}" -name "AP_$(cut -d "/" -f 1 -s <<< "$DOWNLOADED_FIRMWARE")*.md5" | sort -r | head -n 1)"
+    BL_TAR="$(find "$ODIN_DIR/${MODEL}_${CSC}" -name "BL_*.md5" | sort -r | head -n 1)"
+    AP_TAR="$(find "$ODIN_DIR/${MODEL}_${CSC}" -name "AP_*.md5" | sort -r | head -n 1)"
 
     if [ ! "$BL_TAR" ]; then
         LOG "\033[0;31m! No BL tar found\033[0m"
