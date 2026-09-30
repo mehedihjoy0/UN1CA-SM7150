@@ -1,0 +1,4 @@
+id=vintf
+name=VINTF
+author=mehedihjoy0
+description=Replaces compatibility_matrix.device.xml with target ones.

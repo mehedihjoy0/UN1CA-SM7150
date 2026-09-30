@@ -1,0 +1,4 @@
+id=selinux
+name=Vendor SELinux fix
+author=mehedihjoy0
+description=Fixes SELinux policy on vendor.
