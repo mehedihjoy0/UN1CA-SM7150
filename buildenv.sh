@@ -153,6 +153,7 @@ unset -f _PRINT_USAGE
 export APKTOOL_DIR="$OUT_DIR/target/$SELECTED_TARGET/apktool"
 export WORK_DIR="$OUT_DIR/target/$SELECTED_TARGET/work_dir"
 export TMP_DIR="$OUT_DIR/target/$SELECTED_TARGET/tmp"
+export BUILD_TYPE="${BUILD_TYPE:+-${BUILD_TYPE}}"
 
 mkdir -p "$OUT_DIR/target/$SELECTED_TARGET"
 # shellcheck disable=SC2046
