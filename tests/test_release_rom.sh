@@ -35,7 +35,7 @@ done
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
-VERSION=3.2.0
+VERSION=3.2.1
 CODENAME=m51
 STAMP=20260101
 
@@ -433,6 +433,36 @@ mkzip "$OUT/UN1CA_${VERSION}_${STAMP}_${CODENAME}_INCREMENTAL_999-encrypted-sign
 run_release "" 0
 eq "a duplicate delta package fails the release" "$RELEASE_RC" "1"
 has "the duplicate delta is reported" "more than one package matches this release" "$RELEASE_OUT"
+
+# --- scenario: stale and duplicate manifest entries -------------------------
+section "Scenario: merging replaces stale entries and collapses same-kind duplicates"
+# A release replaces every entry of the versions it publishes, and duplicate
+# packages of the same kind (a version rebuilt on a later day) collapse to the
+# newest one. A full package and a delta of an untouched version are preserved,
+# since only the release that publishes a version decides what it advertises.
+setup_env legacy_duplicate
+VERSION=3.2.2-deadbee
+mkzip "$(target_zip)" 0
+mkzip "$(full_zip)" 0
+cat > "$STATE/files/manifest-encrypted.json" <<JSON
+{
+  "response": [
+    {"datetime": 100, "device": "$CODENAME", "filename": "UN1CA_3.2.0-a977c06_20260926_m51-encrypted-sign.zip", "id": "a", "patch": "2026-08-05", "size": 1, "urls": ["https://example.invalid/old"], "version": "3.2.0-a977c06", "incremental": 0},
+    {"datetime": 200, "device": "$CODENAME", "filename": "UN1CA_3.2.0-a977c06_20260927_m51-encrypted-sign.zip", "id": "b", "patch": "2026-08-05", "size": 1, "urls": ["https://example.invalid/newer"], "version": "3.2.0-a977c06", "incremental": 0},
+    {"datetime": 300, "device": "$CODENAME", "filename": "UN1CA_3.2.1-f85dd71_20260930_m51-encrypted-sign.zip", "id": "c", "patch": "2026-08-05", "size": 1, "urls": ["https://example.invalid/full"], "version": "3.2.1-f85dd71", "incremental": 0},
+    {"datetime": 300, "device": "$CODENAME", "filename": "UN1CA_3.2.1-f85dd71_20260930_m51_INCREMENTAL_1790410436-encrypted-sign.zip", "id": "d", "patch": "2026-08-05", "size": 1, "urls": ["https://example.invalid/delta"], "version": "3.2.1-f85dd71", "incremental": 1790410436},
+    {"datetime": 50, "device": "$CODENAME", "filename": "UN1CA_3.2.2-deadbee_20250101_m51-encrypted-sign.zip", "id": "e", "patch": "2026-08-05", "size": 1, "urls": ["https://example.invalid/stale"], "version": "3.2.2-deadbee", "incremental": 0}
+  ]
+}
+JSON
+run_release "Legacy merge" 0
+eq "the release succeeds" "$RELEASE_RC" "0"
+eq "every version keeps one entry per kind" "$(jq -r '.response | length' "$MANIFEST")" "4"
+eq "the same-kind duplicate collapses to one entry" "$(jq -r '[.response[] | select(.version == "3.2.0-a977c06")] | length' "$MANIFEST")" "1"
+eq "the newest duplicate is kept" "$(jq -r '.response[] | select(.version == "3.2.0-a977c06") | .datetime' "$MANIFEST")" "200"
+eq "an untouched version keeps its full and delta" "$(jq -r '[.response[] | select(.version == "3.2.1-f85dd71")] | length' "$MANIFEST")" "2"
+eq "the stale entry for this version is replaced" "$(jq -r '[.response[] | select(.version == "'"$VERSION"'")] | length' "$MANIFEST")" "1"
+eq "this release's package is the one advertised" "$(jq -r '.response[] | select(.version == "'"$VERSION"'") | .filename' "$MANIFEST")" "$(basename "$(full_zip)")"
 
 # --- scenario: generated manifest is ignored --------------------------------
 section "Scenario: the generated manifest is ignored by git"

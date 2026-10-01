@@ -184,8 +184,10 @@ FETCH_CURRENT_MANIFEST()
   fi
 }
 
-# Fold this release's entries into the current manifest, replacing any entry
-# that shares its filename
+# Fold this release's entries into the current manifest. A release fully defines
+# the versions it publishes: every existing entry for the same version and device
+# is replaced, and duplicate packages of the same kind are collapsed to the
+# newest entry.
 MERGE_MANIFEST()
 {
 python3 - "$CURRENT_MANIFEST" "$MANIFEST" "$UPDATED_MANIFEST" <<'PY'
@@ -198,10 +200,38 @@ try:
 except json.JSONDecodeError:
     data = json.loads(re.sub(r",(\s*[}\]])", r"\1", raw))
 entries = json.load(open(new, encoding="utf-8"))["response"]
-names = {entry["filename"] for entry in entries}
-data["response"] = [
-    entry for entry in data.get("response", []) if entry.get("filename") not in names
+
+
+def slot(entry):
+    # A version string identifies one build of one device; a full package and a
+    # delta of the same version are alternatives, not separate releases.
+    return (entry.get("version"), entry.get("device"))
+
+
+def kind(entry):
+    return 1 if entry.get("incremental") else 0
+
+
+published = {slot(entry) for entry in entries}
+merged = [
+    entry for entry in data.get("response", []) if slot(entry) not in published
 ] + entries
+
+# Collapse duplicate packages of the same kind: rebuilding one version on a later
+# day produces a new filename, so keep the newest entry per (version, device,
+# kind). A full package and a delta of the same version are left alone here --
+# only the release that publishes a version decides what that version advertises.
+best = {}
+order = []
+for entry in merged:
+    key = (slot(entry), kind(entry))
+    if key not in best:
+        best[key] = entry
+        order.append(key)
+    elif (entry.get("datetime") or 0) > (best[key].get("datetime") or 0):
+        best[key] = entry
+data["response"] = [best[key] for key in order]
+
 with open(out, "w", encoding="utf-8") as fh:
     json.dump(data, fh, indent=2, ensure_ascii=False)
     fh.write("\n")
