@@ -410,6 +410,30 @@ eq "each leg uploaded its own target zip" "$(grep -cF 'target_files-encrypted.zi
 eq "both full packages are still uploaded" "$(grep -cF "$(basename "$(full_zip)")" "$STATE/uploads"):$(grep -cF "$(basename "$(delta_zip)")" "$STATE/uploads")" "1:1"
 eq "the shared changelog was written" "$(cat "$STATE/files/$VERSION.txt")" "Matrix changelog"
 
+# --- scenario: duplicate packages -------------------------------------------
+section "Scenario: duplicate packages of the same build type fail the release"
+setup_env duplicate_full
+mkzip "$(target_zip)" 0
+mkzip "$(full_zip)" 0
+mkzip "$OUT/UN1CA_${VERSION}_20260102_${CODENAME}-encrypted-sign.zip" 0
+run_release "" 0
+eq "a duplicate full package fails the release" "$RELEASE_RC" "1"
+has "the duplicate is reported" "more than one package matches this release" "$RELEASE_OUT"
+has "the offending package is named" "$(basename "$(full_zip)")" "$RELEASE_OUT"
+if [ -f "$STATE/uploads" ]; then
+  fail "nothing is uploaded for a duplicate release"
+else
+  pass "nothing is uploaded for a duplicate release"
+fi
+
+setup_env duplicate_delta
+mkzip "$(target_zip)" 0
+mkzip "$(delta_zip)" 4242
+mkzip "$OUT/UN1CA_${VERSION}_${STAMP}_${CODENAME}_INCREMENTAL_999-encrypted-sign.zip" 4242
+run_release "" 0
+eq "a duplicate delta package fails the release" "$RELEASE_RC" "1"
+has "the duplicate delta is reported" "more than one package matches this release" "$RELEASE_OUT"
+
 # --- scenario: generated manifest is ignored --------------------------------
 section "Scenario: the generated manifest is ignored by git"
 if git -C "$REPO" check-ignore -q manifest.json; then

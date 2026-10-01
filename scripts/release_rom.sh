@@ -110,6 +110,17 @@ manifest, prefix, chunks_dir = sys.argv[1:4]
 with open(manifest, encoding="utf-8") as fh:
     data = json.load(fh)
 entries = data["response"]
+# A release carries at most one full package and at most one delta. Anything
+# more means a stale package from an earlier build of this same version and
+# build type is still in the output directory, which would advertise that
+# version twice, so fail instead of publishing it.
+full = sorted(e["filename"] for e in entries if not e.get("incremental"))
+delta = sorted(e["filename"] for e in entries if e.get("incremental"))
+if len(full) > 1 or len(delta) > 1:
+    print("ERROR: more than one package matches this release, clean the output directory:", file=sys.stderr)
+    for name in full + delta:
+        print(f"  {name}", file=sys.stderr)
+    sys.exit(1)
 # An incremental release must advertise exactly one update per version: the
 # delta package. The full package is still uploaded to the release (so users
 # who cannot apply deltas can grab it manually), but listing both would make
