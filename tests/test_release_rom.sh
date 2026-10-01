@@ -172,6 +172,8 @@ mkzip() { # <outfile> <incremental>
 target_zip() { echo "$OUT/${CODENAME}_${VERSION}-target_files-encrypted.zip"; }
 full_zip() { echo "$OUT/UN1CA_${VERSION}_${STAMP}_${CODENAME}-encrypted-sign.zip"; }
 delta_zip() { echo "$OUT/UN1CA_${VERSION}_${STAMP}_${CODENAME}_INCREMENTAL_4242-encrypted-sign.zip"; }
+dec_target_zip() { echo "$OUT/${CODENAME}_${VERSION}-target_files-decrypted.zip"; }
+dec_delta_zip() { echo "$OUT/UN1CA_${VERSION}_${STAMP}_${CODENAME}_INCREMENTAL_777-decrypted-sign.zip"; }
 
 run_release() { # <changelog> <fail_first_commit>
   RELEASE_OUT="$(PATH="$BIN:$PATH" E2E_STATE="$STATE" E2E_FAIL_FIRST="$2" \
@@ -181,10 +183,10 @@ run_release() { # <changelog> <fail_first_commit>
     MAX_COMMIT_ATTEMPTS="${E2E_MAX_ATTEMPTS:-5}" \
     GH_CONFIG_DIR="$SCEN/ghconfig" GH_TOKEN=test-token \
     SRC_DIR="$SRC" OUT_DIR="$OUT" TARGET_CODENAME="$CODENAME" ROM_VERSION="$VERSION" \
-    BUILD_TYPE=encrypted CHANGELOG_TEXT="$1" \
+    BUILD_TYPE="${E2E_BUILD_TYPE:-encrypted}" CHANGELOG_TEXT="$1" \
     bash "$SRC/scripts/release_rom.sh" 2>&1)"
   RELEASE_RC=$?
-  MANIFEST="$STATE/files/manifest-encrypted.json"
+  MANIFEST="$STATE/files/manifest-${E2E_BUILD_TYPE:-encrypted}.json"
 }
 
 # --- scenario: incremental release ------------------------------------------
@@ -375,6 +377,38 @@ git -C "$SRC" remote set-url origin "https://gitlab.com/someone/UN1CA-SM7150"
 run_release "" 0
 eq "a non-GitHub remote fails the release" "$RELEASE_RC" "1"
 has "the non-GitHub remote is reported" "could not derive a GitHub owner" "$RELEASE_OUT"
+
+# --- scenario: full build-type matrix ---------------------------------------
+section "Scenario: a full build-type matrix pass keeps the manifests separate"
+setup_env matrix
+mkzip "$(target_zip)" 0
+mkzip "$(dec_target_zip)" 0
+mkzip "$(full_zip)" 0
+mkzip "$(delta_zip)" 4242
+mkzip "$(dec_delta_zip)" 777
+
+E2E_BUILD_TYPE=encrypted run_release "Matrix changelog" 0
+E2E_BUILD_TYPE=decrypted run_release "Matrix changelog" 0
+E2E_BUILD_TYPE=encrypted
+
+ENC="$STATE/files/manifest-encrypted.json"
+DEC="$STATE/files/manifest-decrypted.json"
+eq "the last matrix leg succeeded" "$RELEASE_RC" "0"
+eq "both matrix legs committed their manifest" "$(cat "$STATE/graphql_calls")" "2"
+eq "the encrypted manifest holds one entry" "$(jq -r '.response | length' "$ENC")" "1"
+eq "the decrypted manifest holds one entry" "$(jq -r '.response | length' "$DEC")" "1"
+eq "the encrypted manifest advertises the encrypted delta" "$(jq -r '.response[0].filename' "$ENC")" "$(basename "$(delta_zip)")"
+eq "the decrypted manifest advertises the decrypted delta" "$(jq -r '.response[0].filename' "$DEC")" "$(basename "$(dec_delta_zip)")"
+eq "the encrypted entry URL is correct" "$(jq -r '.response[0].urls[0]' "$ENC")" "https://github.com/mehedihjoy0/static_resources/releases/download/$VERSION/$(basename "$(delta_zip)")"
+eq "the decrypted entry URL is correct" "$(jq -r '.response[0].urls[0]' "$DEC")" "https://github.com/mehedihjoy0/static_resources/releases/download/$VERSION/$(basename "$(dec_delta_zip)")"
+if ! grep -q decrypted "$ENC" && ! grep -q encrypted "$DEC"; then
+  pass "neither manifest leaks the other build type"
+else
+  fail "neither manifest leaks the other build type"
+fi
+eq "each leg uploaded its own target zip" "$(grep -cF 'target_files-encrypted.zip' "$STATE/uploads"):$(grep -cF 'target_files-decrypted.zip' "$STATE/uploads")" "1:1"
+eq "both full packages are still uploaded" "$(grep -cF "$(basename "$(full_zip)")" "$STATE/uploads"):$(grep -cF "$(basename "$(delta_zip)")" "$STATE/uploads")" "1:1"
+eq "the shared changelog was written" "$(cat "$STATE/files/$VERSION.txt")" "Matrix changelog"
 
 # --- scenario: generated manifest is ignored --------------------------------
 section "Scenario: the generated manifest is ignored by git"
