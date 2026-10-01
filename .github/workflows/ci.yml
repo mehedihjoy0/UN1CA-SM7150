@@ -23,6 +23,9 @@ on:
         required: true
         default: false
         type: boolean
+  # Everything except the build runs on pull requests too, so linting and the
+  # OTA release tests gate changes. The build job is dispatch-only, see below.
+  pull_request:
 
 jobs:
   shellcheck:
@@ -58,6 +61,10 @@ jobs:
   build:
     name: Build
     needs: [shellcheck, ota-tests]
+    # Building a ROM needs the platform signing secrets (unavailable to fork
+    # pull requests) and takes far longer than a PR gate should, so keep it to
+    # manual dispatches only.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
 
     strategy:
