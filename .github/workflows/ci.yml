@@ -3,13 +3,8 @@ name: CI
 on:
   workflow_dispatch:
     inputs:
-      device:
-        description: "Device Codename"
-        required: true
-        default: ""
-        type: string
       incremental_ota:
-        description: "Build Incremental OTA"
+        description: "Build incremental OTA"
         required: true
         default: false
         type: boolean
@@ -19,7 +14,7 @@ on:
         default: false
         type: boolean
       changelog:
-        description: "Changelog"
+        description: "Changelog for this release"
         required: false
         default: ""
         type: string
@@ -28,6 +23,9 @@ on:
         required: true
         default: false
         type: boolean
+  # Everything except the build runs on pull requests too, so linting and the
+  # OTA release tests gate changes. The build job is dispatch-only, see below.
+  pull_request:
 
 jobs:
   shellcheck:
@@ -43,18 +41,42 @@ jobs:
           CODE=0
           while IFS= read -r f; do
             shellcheck -e SC1090,SC1091 -s bash "$f" || CODE=1
-          done < <(find platform scripts target unica -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
+          done < <(find platform scripts target unica tests -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
           exit $CODE
+
+  ota-tests:
+    name: OTA release tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Install test dependencies
+        run: sudo apt-get update && sudo apt-get install -yq jq zip unzip
+
+      - name: Run OTA release tests
+        run: bash tests/test_release_rom.sh
 
   build:
     name: Build
-    needs: shellcheck
+    needs: [shellcheck, ota-tests]
+    # Building a ROM needs the platform signing secrets (unavailable to fork
+    # pull requests) and takes far longer than a PR gate should, so keep it to
+    # manual dispatches only.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
+      # Both builds commit to the same branch in the static_resources repo, so
+      # run the matrix legs one at a time: only one job touches the manifest
+      # branch per release. release_rom.sh still retries, as defense in depth
+      # against pushes from elsewhere.
+      max-parallel: 1
       matrix:
         build_type: [encrypted, decrypted]
+        target: [m51]
     steps:
 
       - name: Free disk space (1/3)
@@ -103,7 +125,7 @@ jobs:
         env:
           BUILD_TYPE: ${{ matrix.build_type }}
         run: |
-          source ./buildenv.sh ${{ inputs.device }}
+          source ./buildenv.sh m51
           {
             echo "DEBUG=$DEBUG"
             echo "SRC_DIR=$SRC_DIR"
@@ -149,6 +171,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CHANGELOG_TEXT: ${{ inputs.changelog }}
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
         run: ./scripts/release_rom.sh
         
       - name: Upload ROM to PixelDrain

@@ -5,15 +5,22 @@ ADD_TO_WORK_DIR "$MODPATH" "system" "." 0 0 755 "u:object_r:system_file:s0"
 
 BUILDER="$(git -C "$SRC_DIR" config --get remote.origin.url | sed -nE \
     's#^(https://github\.com/|git@github\.com:)([^/]+)/.*#\2#p')"
-    
-LOG_STEP_IN "- Forcing ChoiDujour to fetch OTA metadata from @${BUILDER}'s repository"
+
+# Resolve the OTA manifest file from the build type, which buildenv.sh exports
+# dash-prefixed ("-encrypted" / "-decrypted")
+OTA_MANIFEST="manifest-encrypted.json"
+if [ "${BUILD_TYPE:-}" = "-decrypted" ]; then
+    OTA_MANIFEST="manifest-decrypted.json"
+fi
+
+LOG_STEP_IN "- Forcing ChoiDujour to fetch OTA metadata from @${BUILDER}'s repository ($OTA_MANIFEST)"
 SMALI_PATCH "system" \
 	"system/priv-app/ChoiDujour/ChoiDujour.apk" \
 	"smali/t81.smali" \
 	"replace" \
     "b(Z)V" \
     "const-wide v4, 0x5c18d946d5d38297L" \
-    "    const-string v3, \"https://raw.githubusercontent.com/$BUILDER/static_resources/refs/heads/sixteen/updates/manifest${BUILD_TYPE}.json\"\n
+    "    const-string v3, \"https://raw.githubusercontent.com/$BUILDER/static_resources/refs/heads/sixteen/updates/$OTA_MANIFEST\"\n
     const-wide v4, 0x5c18d946d5d38297L"
 SMALI_PATCH "system" \
     "system/priv-app/ChoiDujour/ChoiDujour.apk" \
