@@ -358,6 +358,24 @@ eq "a failed verification fetch fails the release" "$RELEASE_RC" "1"
 has "the verification fetch failure is reported" "could not re-fetch manifest-encrypted.json" "$RELEASE_OUT"
 has "the HTTP status is included" "HTTP 500" "$RELEASE_OUT"
 
+# --- scenario: unusable git remote ------------------------------------------
+section "Scenario: an unusable git remote fails with a clear error"
+setup_env no_remote
+mkzip "$(target_zip)" 0
+mkzip "$(full_zip)" 0
+git -C "$SRC" config --unset remote.origin.url || true
+run_release "" 0
+eq "a missing git remote fails the release" "$RELEASE_RC" "1"
+has "the missing remote is reported" "could not derive a GitHub owner" "$RELEASE_OUT"
+
+setup_env bad_remote
+mkzip "$(target_zip)" 0
+mkzip "$(full_zip)" 0
+git -C "$SRC" remote set-url origin "https://gitlab.com/someone/UN1CA-SM7150"
+run_release "" 0
+eq "a non-GitHub remote fails the release" "$RELEASE_RC" "1"
+has "the non-GitHub remote is reported" "could not derive a GitHub owner" "$RELEASE_OUT"
+
 # --- scenario: generated manifest is ignored --------------------------------
 section "Scenario: the generated manifest is ignored by git"
 if git -C "$REPO" check-ignore -q manifest.json; then

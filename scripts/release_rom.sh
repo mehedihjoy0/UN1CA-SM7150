@@ -23,8 +23,14 @@ fi
 unset REQUIRED_VARS MISSING_VARS VAR
 
 echo "- Resolving repository"
-REPOSITORY="$(git -C "$SRC_DIR" config --get remote.origin.url |
-  sed -nE 's#^(https://github\.com/|git@github\.com:)([^/]+)/.*#\2#p')/static_resources"
+REMOTE_URL="$(git -C "$SRC_DIR" config --get remote.origin.url 2>/dev/null || true)"
+OWNER="$(sed -nE 's#^(https://github\.com/|git@github\.com:)([^/]+)/.*#\2#p' <<< "$REMOTE_URL")"
+if [ -z "$OWNER" ]; then
+  echo "ERROR: could not derive a GitHub owner from the git remote of $SRC_DIR" >&2
+  echo "  remote.origin.url: ${REMOTE_URL:-<unset>}" >&2
+  exit 1
+fi
+REPOSITORY="$OWNER/static_resources"
 BRANCH=sixteen
 BUILD_TYPE="${BUILD_TYPE:-encrypted}"
 BUILD_TYPE="-${BUILD_TYPE}"
