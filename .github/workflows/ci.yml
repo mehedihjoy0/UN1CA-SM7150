@@ -38,16 +38,35 @@ jobs:
           CODE=0
           while IFS= read -r f; do
             shellcheck -e SC1090,SC1091 -s bash "$f" || CODE=1
-          done < <(find platform scripts target unica -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
+          done < <(find platform scripts target unica tests -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
           exit $CODE
+
+  ota-tests:
+    name: OTA release tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Install test dependencies
+        run: sudo apt-get update && sudo apt-get install -yq jq zip unzip
+
+      - name: Run OTA release tests
+        run: bash tests/test_release_rom.sh
 
   build:
     name: Build
-    needs: shellcheck
+    needs: [shellcheck, ota-tests]
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
+      # Both builds commit to the same branch in the static_resources repo, so
+      # run the matrix legs one at a time: only one job touches the manifest
+      # branch per release. release_rom.sh still retries, as defense in depth
+      # against pushes from elsewhere.
+      max-parallel: 1
       matrix:
         build_type: [encrypted, decrypted]
         target: [m51]
