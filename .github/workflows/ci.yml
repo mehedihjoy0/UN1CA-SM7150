@@ -122,6 +122,8 @@ jobs:
           cache: 'gradle'
 
       - name: Generate build config
+        env:
+          BUILD_TYPE: ${{ matrix.build_type }}
         run: |
           source ./buildenv.sh m51
           {
@@ -134,6 +136,7 @@ jobs:
             echo "APKTOOL_DIR=$APKTOOL_DIR"
             echo "WORK_DIR=$WORK_DIR"
             echo "TMP_DIR=$TMP_DIR"
+            echo "BUILD_TYPE=$BUILD_TYPE"
           } >> "$GITHUB_ENV"
           sed -e "/Automatically/d" -e "s/\"//g" "$OUT_DIR/config.sh" >> "$GITHUB_ENV"
           echo "$TOOLS_DIR/bin" >> "$GITHUB_PATH"
@@ -152,20 +155,8 @@ jobs:
       - name: Extract stock firmwares
         run: ./scripts/extract_fw.sh
 
-      - name: Configure encryption state
-        run: |
-          if [ "${{ matrix.build_type }}" = "encrypted" ]; then
-            sed -i '/device/a        OUTPUT_FILE+="-encrypted"' scripts/build_flashable_zip.sh
-            sed -i 's|"-target_files.zip"|"-target_files-encrypted.zip"|g' scripts/make_rom.sh
-          else
-            rm -f target/m51/patches/dfe/disable
-            sed -i '/device/a        OUTPUT_FILE+="-decrypted"' scripts/build_flashable_zip.sh
-            sed -i 's|"-target_files.zip"|"-target_files-decrypted.zip"|g' scripts/make_rom.sh
-          fi
-
       - name: Build ROM
         env:
-          BUILD_TYPE: ${{ matrix.build_type }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           if [ "${{ inputs.incremental_ota }}" = "true" ]; then
@@ -180,7 +171,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CHANGELOG_TEXT: ${{ inputs.changelog }}
-          BUILD_TYPE: ${{ matrix.build_type }}
           PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
         run: ./scripts/release_rom.sh
         

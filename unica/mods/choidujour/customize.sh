@@ -6,13 +6,10 @@ ADD_TO_WORK_DIR "$MODPATH" "system" "." 0 0 755 "u:object_r:system_file:s0"
 BUILDER="$(git -C "$SRC_DIR" config --get remote.origin.url | sed -nE \
     's#^(https://github\.com/|git@github\.com:)([^/]+)/.*#\2#p')"
 
-# Resolve the OTA manifest file to use:
-# - $BUILD_TYPE set by the CI takes precedence
-# - otherwise infer the encryption state from the DFE patch: the CI removes
-#   target/<dev>/patches/dfe/disable for decrypted builds
+# Resolve the OTA manifest file from the build type, which buildenv.sh exports
+# dash-prefixed ("-encrypted" / "-decrypted")
 OTA_MANIFEST="manifest-encrypted.json"
-if [ "${BUILD_TYPE:-}" = "decrypted" ] || { [ -d "$SRC_DIR/target/${TARGET_CODENAME:-}/patches/dfe" ] && \
-        [ ! -f "$SRC_DIR/target/${TARGET_CODENAME:-}/patches/dfe/disable" ]; }; then
+if [ "${BUILD_TYPE:-}" = "-decrypted" ]; then
     OTA_MANIFEST="manifest-decrypted.json"
 fi
 

@@ -183,10 +183,10 @@ run_release() { # <changelog> <fail_first_commit>
     MAX_COMMIT_ATTEMPTS="${E2E_MAX_ATTEMPTS:-5}" \
     GH_CONFIG_DIR="$SCEN/ghconfig" GH_TOKEN=test-token \
     SRC_DIR="$SRC" OUT_DIR="$OUT" TARGET_CODENAME="$CODENAME" ROM_VERSION="$VERSION" \
-    BUILD_TYPE="${E2E_BUILD_TYPE:-encrypted}" CHANGELOG_TEXT="$1" \
+    BUILD_TYPE="${E2E_BUILD_TYPE:--encrypted}" CHANGELOG_TEXT="$1" \
     bash "$SRC/scripts/release_rom.sh" 2>&1)"
   RELEASE_RC=$?
-  MANIFEST="$STATE/files/manifest-${E2E_BUILD_TYPE:-encrypted}.json"
+  MANIFEST="$STATE/files/manifest${E2E_BUILD_TYPE:--encrypted}.json"
 }
 
 # --- scenario: incremental release ------------------------------------------
@@ -387,9 +387,9 @@ mkzip "$(full_zip)" 0
 mkzip "$(delta_zip)" 4242
 mkzip "$(dec_delta_zip)" 777
 
-E2E_BUILD_TYPE=encrypted run_release "Matrix changelog" 0
-E2E_BUILD_TYPE=decrypted run_release "Matrix changelog" 0
-E2E_BUILD_TYPE=encrypted
+E2E_BUILD_TYPE=-encrypted run_release "Matrix changelog" 0
+E2E_BUILD_TYPE=-decrypted run_release "Matrix changelog" 0
+E2E_BUILD_TYPE=-encrypted
 
 ENC="$STATE/files/manifest-encrypted.json"
 DEC="$STATE/files/manifest-decrypted.json"

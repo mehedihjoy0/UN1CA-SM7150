@@ -32,8 +32,10 @@ if [ -z "$OWNER" ]; then
 fi
 REPOSITORY="$OWNER/static_resources"
 BRANCH=sixteen
-BUILD_TYPE="${BUILD_TYPE:-encrypted}"
-BUILD_TYPE="-${BUILD_TYPE}"
+# buildenv.sh exports the build type already dash-prefixed ("-encrypted" /
+# "-decrypted"), which is what make_rom.sh, the DFE mod and the manifest names
+# all expect. Fall back to the encrypted build when nothing is supplied.
+BUILD_TYPE="${BUILD_TYPE:--encrypted}"
 RELEASE_WORK_DIR="$(mktemp -d)"
 CHUNK_SIZE="${CHUNK_SIZE:-1610612736}"
 RELEASE_CHUNKS_DIR="$RELEASE_WORK_DIR/chunks"
