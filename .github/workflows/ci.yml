@@ -2,6 +2,32 @@ name: CI
 
 on:
   workflow_dispatch:
+    inputs:
+      device:
+        description: "Device Codename"
+        required: true
+        default: ""
+        type: string
+      incremental_ota:
+        description: "Build Incremental OTA"
+        required: true
+        default: false
+        type: boolean
+      release_rom:
+        description: "Release ROM"
+        required: true
+        default: false
+        type: boolean
+      changelog:
+        description: "Changelog"
+        required: false
+        default: ""
+        type: string
+      upload:
+        description: "Upload to PixelDrain"
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   shellcheck:
@@ -20,41 +46,16 @@ jobs:
           done < <(find platform scripts target unica -name "*.sh" -not -name "*ssi.sh" -not -name "config.sh" -not -name "sff.sh")
           exit $CODE
 
-  generate-matrix:
-    name: Generate matrix
-    needs: shellcheck
-    runs-on: ubuntu-24.04
-
-    outputs:
-      matrix: ${{ steps.generate-matrix.outputs.matrix }}
-
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-
-      - name: Generate CI matrix
-        id: generate-matrix
-        run: |
-          matrix="$(find target -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
-            | sort | jq -R -s -c 'split("\n") | map(select(length > 0))')"
-          echo "$matrix"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-
   build:
     name: Build
-    needs: [shellcheck, generate-matrix]
+    needs: shellcheck
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
-        target: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
-
+        build_type: [encrypted, decrypted]
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          submodules: 'recursive'
 
       - name: Free disk space (1/3)
         run: |
@@ -72,11 +73,17 @@ jobs:
         with:
           retain: 'compiler_cmake'
 
+      - name: Checkout repo
+        uses: actions/checkout@v7
+        with:
+          submodules: 'recursive'
+          fetch-depth: 1
+
       - name: Set up build environment
         run: |
           sudo apt update
           DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
-            attr ccache clang ffmpeg libbrotli-dev libbz2-dev \
+            attr ccache clang ffmpeg gh libbrotli-dev libbz2-dev \
             libgtest-dev libprotobuf-dev libunwind-dev libpcre2-dev \
             libzstd-dev linux-modules-extra-$(uname -r) lld protobuf-compiler webp
           sudo modprobe erofs f2fs
@@ -93,8 +100,10 @@ jobs:
           cache: 'gradle'
 
       - name: Generate build config
+        env:
+          BUILD_TYPE: ${{ matrix.build_type }}
         run: |
-          source ./buildenv.sh ${{ matrix.target }}
+          source ./buildenv.sh ${{ inputs.device }}
           {
             echo "DEBUG=$DEBUG"
             echo "SRC_DIR=$SRC_DIR"
@@ -105,6 +114,7 @@ jobs:
             echo "APKTOOL_DIR=$APKTOOL_DIR"
             echo "WORK_DIR=$WORK_DIR"
             echo "TMP_DIR=$TMP_DIR"
+            echo "BUILD_TYPE=$BUILD_TYPE"
           } >> "$GITHUB_ENV"
           sed -e "/Automatically/d" -e "s/\"//g" "$OUT_DIR/config.sh" >> "$GITHUB_ENV"
           echo "$TOOLS_DIR/bin" >> "$GITHUB_PATH"
@@ -124,4 +134,28 @@ jobs:
         run: ./scripts/extract_fw.sh
 
       - name: Build ROM
-        run: ./scripts/make_rom.sh
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          ./scripts/make_rom.sh --build-rom-zip
+          if [ "${{ inputs.incremental_ota }}" = "true" ]; then
+            ./scripts/build_incremental.sh
+          fi
+
+      - name: Release this ROM
+        if: ${{ inputs.release_rom }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CHANGELOG_TEXT: ${{ inputs.changelog }}
+        run: ./scripts/release_rom.sh
+        
+      - name: Upload ROM to PixelDrain
+        if: ${{ inputs.upload }}
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PIXELDRAIN_API_KEY }}
+        run: |
+          curl -sL https://github.com/jkawamoto/go-pixeldrain/releases/download/v0.7.6/pd_0.7.6_linux_amd64.tar.gz | tar -xz pd
+          for ROM in out/UN1CA*.zip out/*target*.zip; do
+            echo "Uploading $ROM to PixelDrain..."
+            ./pd --api-key "$PIXELDRAIN_API_KEY" upload "$ROM" | sed 's|api/file|u|g'
+          done
