@@ -1,0 +1,4 @@
+id=ril
+name=Fix RIL
+author=salvogiangri, mehedihjoy0
+description=Replaces vendor RIL blobs with required ones.

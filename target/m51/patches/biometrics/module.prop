@@ -1,0 +1,4 @@
+id=biometrics
+name=Biometrics
+author=salvogiangri
+description=Replaces biometric blobs with required ones.
