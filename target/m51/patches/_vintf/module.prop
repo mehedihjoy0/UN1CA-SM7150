@@ -1,0 +1,4 @@
+id=vintf
+name=VINTF
+author=mehedihjoy0
+description=Makes compatibility_matrix.device.xml compatible for sdk 36.
