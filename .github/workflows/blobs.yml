@@ -86,7 +86,7 @@ jobs:
 
       - name: Generate build config
         run: |
-          source ./buildenv.sh a52sxq
+          source ./buildenv.sh m51
           {
             echo "DEBUG=$DEBUG"
             echo "SRC_DIR=$SRC_DIR"
