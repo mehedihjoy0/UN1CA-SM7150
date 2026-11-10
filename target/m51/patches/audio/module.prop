@@ -1,0 +1,4 @@
+id=audio
+name=Audio HAL
+author=mehedihjoy0
+description=Adds missing audio HAL.
