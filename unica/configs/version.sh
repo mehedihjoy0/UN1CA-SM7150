@@ -19,7 +19,3 @@ if [ "$LATEST_TAG" ]; then
 fi
 # Append current commit hash to version name
 ROM_VERSION+="-$(git rev-parse --short HEAD 2> /dev/null || echo "null")"
-# Append "-dirty" to version name if uncommitted changes are detected
-if [ "$(git --no-optional-locks status -uno --porcelain 2> /dev/null)" ]; then
-    ROM_VERSION+="-dirty"
-fi
