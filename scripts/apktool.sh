@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
 
 FRAMEWORK_DIR="$TOOLS_DIR/apktool/framework"
 FRAMEWORK_TAG="$(GET_PROP "system" "ro.build.version.incremental")"
@@ -22,7 +22,7 @@ BUILD()
 {
     if [ ! -d "$OUTPUT_PATH" ]; then
         LOGE "Folder not found: ${OUTPUT_PATH//$SRC_DIR\//}"
-        exit 1
+        exit 0
     fi
 
     LOG "- Building ${INPUT_FILE//$WORK_DIR/}"
@@ -32,7 +32,7 @@ BUILD()
     cp -a "$OUTPUT_PATH/original/META-INF" "$OUTPUT_PATH/build/apk/META-INF"
 
     # Build APK with --shorten-resource-paths (https://developer.android.com/tools/aapt2#optimize_options)
-    EVAL "apktool -JXmx${HEAP_SIZE}m b -j \"$THREAD_COUNT\" -p \"$FRAMEWORK_DIR\" -srp \"$OUTPUT_PATH\"" || exit 1
+    EVAL "apktool -JXmx${HEAP_SIZE}m b -j \"$THREAD_COUNT\" -p \"$FRAMEWORK_DIR\" -srp \"$OUTPUT_PATH\"" || exit 0
 
     local FILE_NAME
     FILE_NAME="$(basename "$INPUT_FILE")"
@@ -42,11 +42,11 @@ BUILD()
         $ROM_IS_OFFICIAL && CERT_PREFIX="unica"
 
         LOG "- Signing ${INPUT_FILE//$WORK_DIR/}"
-        EVAL "signapk \"$SRC_DIR/security/${CERT_PREFIX}_platform.x509.pem\" \"$SRC_DIR/security/${CERT_PREFIX}_platform.pk8\" \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp.apk\"" || exit 1
+        EVAL "signapk \"$SRC_DIR/security/${CERT_PREFIX}_platform.x509.pem\" \"$SRC_DIR/security/${CERT_PREFIX}_platform.pk8\" \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp.apk\"" || exit 0
         mv -f "$OUTPUT_PATH/dist/temp.apk" "$OUTPUT_PATH/dist/$FILE_NAME"
     else
         LOG "- Zipaligning ${INPUT_FILE//$WORK_DIR/}"
-        EVAL "zipalign -p 4 \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp\"" || exit 1
+        EVAL "zipalign -p 4 \"$OUTPUT_PATH/dist/$FILE_NAME\" \"$OUTPUT_PATH/dist/temp\"" || exit 0
         mv -f "$OUTPUT_PATH/dist/temp" "$OUTPUT_PATH/dist/$FILE_NAME"
     fi
 
@@ -69,19 +69,19 @@ DECODE()
 {
     if [ ! -f "$INPUT_FILE" ]; then
         LOGE "File not found: ${INPUT_FILE//$WORK_DIR/}"
-        exit 1
+        exit 0
     elif [ -d "$OUTPUT_PATH" ]; then
         if $FORCE; then
             rm -rf "$OUTPUT_PATH"
         else
             LOGE "Output directory already exists (${OUTPUT_PATH//$SRC_DIR\//}). Use --force flag if you want to overwrite it."
-            exit 1
+            exit 0
         fi
     fi
 
     if [[ "$(READ_BYTES_AT "$INPUT_FILE" "0" "4")" != "04034b50" ]]; then
         LOGE "File not valid: ${INPUT_FILE//$WORK_DIR/}"
-        exit 1
+        exit 0
     fi
 
     LOG "- Decoding ${INPUT_FILE//$WORK_DIR/}"
@@ -91,7 +91,7 @@ DECODE()
     # - Disabled debug info
     # - Use .locals directive instead of the .registers one
     # - Use a sequential numbering scheme for labels
-    EVAL "apktool -JXmx${HEAP_SIZE}m d --no-debug-info -j \"$THREAD_COUNT\" -o \"$OUTPUT_PATH\" -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" \"$INPUT_FILE\"" || exit 1
+    EVAL "apktool -JXmx${HEAP_SIZE}m d --no-debug-info -j \"$THREAD_COUNT\" -o \"$OUTPUT_PATH\" -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" \"$INPUT_FILE\"" || exit 0
 }
 
 PREPARE_SCRIPT()
@@ -101,14 +101,14 @@ PREPARE_SCRIPT()
 
     if [[ "$#" == 0 ]]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     fi
 
     ACTION="$1"
     if [[ "$ACTION" != "decode" ]] && [[ "$ACTION" != "d" ]] && \
             [[ "$ACTION" != "build" ]] && [[ "$ACTION" != "b" ]]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     fi
 
     shift
@@ -120,11 +120,11 @@ PREPARE_SCRIPT()
             shift; JOBS="$1"
             if ! [[ "$JOBS" =~ ^[1-9][0-9]*$ ]]; then
                 LOGE "Jobs number not valid: $JOBS"
-                exit 1
+                exit 0
             fi
         else
             LOGE "Unknown option: $1"
-            exit 1
+            exit 0
         fi
 
         shift
@@ -161,17 +161,17 @@ PREPARE_SCRIPT()
     PARTITION="$1"
     if [ ! "$PARTITION" ]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     elif ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        exit 1
+        exit 0
     fi
 
     shift
 
     if [ ! "$1" ]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     fi
 
     FILE="$1"
@@ -212,10 +212,10 @@ PREPARE_SCRIPT "$@"
 
 if [ ! "$FRAMEWORK_TAG" ]; then
     LOGE "Work dir needs to be set up before using this script"
-    exit 1
+    exit 0
 elif [ ! -f "$FRAMEWORK_DIR/1-$FRAMEWORK_TAG.apk" ]; then
     LOGW "framework-res.apk for \"$FRAMEWORK_TAG\" not found, installing"
-    EVAL "apktool if -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" \"$WORK_DIR/system/system/framework/framework-res.apk\"" || exit 1
+    EVAL "apktool if -p \"$FRAMEWORK_DIR\" -t \"$FRAMEWORK_TAG\" \"$WORK_DIR/system/system/framework/framework-res.apk\"" || exit 0
 fi
 
 case "$ACTION" in

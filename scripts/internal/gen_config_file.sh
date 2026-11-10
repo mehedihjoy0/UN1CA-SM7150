@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/common_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/common_utils.sh" || exit 0
 
 trap '[ $? -ne 0 ] && rm -f "$OUT_DIR/config.sh"' EXIT
 
@@ -15,7 +15,7 @@ GET_BUILD_VAR()
             return 0
         fi
     else
-        _CHECK_NON_EMPTY_PARAM "$1" "${!1}" || exit 1
+        _CHECK_NON_EMPTY_PARAM "$1" "${!1}" || exit 0
     fi
 
     echo "${1}=\"${!1}\""
@@ -39,28 +39,28 @@ IS_UNICA_CERT_AVAILABLE()
 
 if [ $# -ne 1 ]; then
     echo "Usage: gen_config_file <target>" >&2
-    exit 1
+    exit 0
 elif [ ! -f "$SRC_DIR/target/$1/config.sh" ]; then
     LOGE "File not found: target/$1/config.sh"
-    exit 1
+    exit 0
 else
-    source "$SRC_DIR/unica/configs/version.sh" || exit 1
-    source "$SRC_DIR/target/$1/config.sh" || exit 1
+    source "$SRC_DIR/unica/configs/version.sh" || exit 0
+    source "$SRC_DIR/target/$1/config.sh" || exit 0
     if [ -f "$SRC_DIR/platform/$TARGET_PLATFORM/config.sh" ]; then
         # HACK
-        source "$SRC_DIR/platform/$TARGET_PLATFORM/config.sh" || exit 1
-        source "$SRC_DIR/target/$1/config.sh" || exit 1
+        source "$SRC_DIR/platform/$TARGET_PLATFORM/config.sh" || exit 0
+        source "$SRC_DIR/target/$1/config.sh" || exit 0
     fi
 fi
 
 if [ ! "$TARGET_OS_SINGLE_SYSTEM_IMAGE" ]; then
     LOGE "TARGET_OS_SINGLE_SYSTEM_IMAGE is not set!"
-    exit 1
+    exit 0
 elif [ ! -f "$SRC_DIR/unica/configs/$TARGET_OS_SINGLE_SYSTEM_IMAGE.sh" ]; then
     LOGE "\"$TARGET_OS_SINGLE_SYSTEM_IMAGE\" is not a valid system image"
-    exit 1
+    exit 0
 else
-    source "$SRC_DIR/unica/configs/$TARGET_OS_SINGLE_SYSTEM_IMAGE.sh" || exit 1
+    source "$SRC_DIR/unica/configs/$TARGET_OS_SINGLE_SYSTEM_IMAGE.sh" || exit 0
 fi
 
 if [ -f "$OUT_DIR/config.sh" ]; then

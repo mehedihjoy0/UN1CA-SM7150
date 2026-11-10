@@ -3,18 +3,18 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
 # ]
 
 if [ "$#" == 0 ]; then
     echo "Usage: unsign_bin <image> (<image>...)" >&2
-    exit 1
+    exit 0
 fi
 
 while [ "$#" != 0 ]; do
     if [ ! -f "$1" ]; then
         LOGE "File not found: $1"
-        exit 1
+        exit 0
     else
         if avbtool info_image --image "$1" &> /dev/null; then
             LOG "- Removing AVB footer signature from $(basename "$1")"

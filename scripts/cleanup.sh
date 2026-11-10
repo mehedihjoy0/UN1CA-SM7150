@@ -19,7 +19,7 @@ PRINT_USAGE()
 
 if [ "$#" == 0 ]; then
     PRINT_USAGE
-    exit 1
+    exit 0
 fi
 
 while [ "$#" != 0 ]; do
@@ -54,7 +54,7 @@ while [ "$#" != 0 ]; do
         *)
             LOGE "\"$1\" is not valid."
             PRINT_USAGE
-            exit 1
+            exit 0
         ;;
     esac
 

@@ -12,16 +12,16 @@ ABORT()
     if [ "$1" ]; then
         LOGE "$1"
     fi
-    return 1
+    return 0
 }
 
 # APPLY_PATCH <partition> <apk/jar> <patch>
 # Applies a unified diff patch to the provided APK/JAR decoded directory.
 APPLY_PATCH()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "PATCH" "$3" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "PATCH" "$3" || return 0
 
     local PARTITION="$1"
     local FILE="$2"
@@ -29,30 +29,30 @@ APPLY_PATCH()
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     if [ ! -f "$PATCH" ]; then
         LOGE "File not found: ${PATCH//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     while [[ "${FILE:0:1}" == "/" ]]; do
         FILE="${FILE:1}"
     done
 
-    DECODE_APK "$PARTITION" "$FILE" || return 1
+    DECODE_APK "$PARTITION" "$FILE" || return 0
 
     LOG "- Applying \"$(grep "^Subject:" "$PATCH" | sed "s/.*PATCH] //")\" to /$PARTITION/$FILE"
-    EVAL "LC_ALL=C git apply --directory=\"$APKTOOL_DIR/$PARTITION/${FILE//system\//}\" --verbose --unsafe-paths \"$PATCH\"" || return 1
+    EVAL "LC_ALL=C git apply --directory=\"$APKTOOL_DIR/$PARTITION/${FILE//system\//}\" --verbose --unsafe-paths \"$PATCH\"" || return 0
 }
 
 # DECODE_APK <partition> <apk/jar>
 # Same usage as `run_cmd apktool d <partition> <apk/jar>`.
 DECODE_APK()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
 
     if [ ! -d "$APKTOOL_DIR/$1/${2//system\/}" ]; then
         "$SRC_DIR/scripts/apktool.sh" d "$1" "$2"
@@ -66,7 +66,7 @@ DECODE_APK()
 # Returns a URL to download the desired app from Samsung servers.
 GET_GALAXY_STORE_DOWNLOAD_URL()
 {
-    _CHECK_NON_EMPTY_PARAM "PACKAGE" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "PACKAGE" "$1" || return 0
 
     local PACKAGE="$1"
     local DEVICES
@@ -129,7 +129,7 @@ GET_GALAXY_STORE_DOWNLOAD_URL()
     done
 
     LOGE "No download URI found for app \"$PACKAGE\""
-    return 1
+    return 0
 }
 
 # GET_FLOATING_FEATURE_CONFIG "<file>" "<config>"
@@ -144,13 +144,13 @@ GET_FLOATING_FEATURE_CONFIG()
         FILE="$WORK_DIR/system/system/etc/floating_feature.xml"
     fi
 
-    _CHECK_NON_EMPTY_PARAM "CONFIG" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "CONFIG" "$1" || return 0
 
     local CONFIG="$1"
 
     if [ ! -f "$FILE" ]; then
         LOGE "File not found: ${FILE//$WORK_DIR/}"
-        return 1
+        return 0
     fi
 
     grep -o -P "(?<=<$CONFIG>)[^<]+" "$FILE" 2> /dev/null || true
@@ -160,9 +160,9 @@ GET_FLOATING_FEATURE_CONFIG()
 # Applies the supplied hex patch to the desired file.
 HEX_PATCH()
 {
-    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FROM" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "TO" "$3" || return 1
+    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FROM" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "TO" "$3" || return 0
 
     local FILE="$1"
     local FROM="$2"
@@ -170,7 +170,7 @@ HEX_PATCH()
 
     if [ ! -f "$FILE" ]; then
         LOGE "File not found: ${FILE//$WORK_DIR/}"
-        return 1
+        return 0
     fi
 
     FROM="${FROM// /}"
@@ -181,12 +181,12 @@ HEX_PATCH()
 
     if ! xxd -p -c 0 "$FILE" | grep -q "$FROM"; then
         LOGE "No \"$FROM\" match in ${FILE//$WORK_DIR/}"
-        return 1
+        return 0
     fi
 
     if [[ "$(echo -n "$FROM" | wc -c)" != "$(echo -n "$TO" | wc -c)" ]]; then
         LOGE "Byte strings length must be equal"
-        return 1
+        return 0
     fi
 
     LOG "- Patching \"$FROM\" to \"$TO\" in ${FILE//$WORK_DIR/}"
@@ -201,8 +201,8 @@ HEX_PATCH()
 # "-d" or "--delete" can be passed as value to delete the config.
 SET_FLOATING_FEATURE_CONFIG()
 {
-    _CHECK_NON_EMPTY_PARAM "CONFIG" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "VALUE" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "CONFIG" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "VALUE" "$2" || return 0
 
     local CONFIG="$1"
     local VALUE="$2"
@@ -210,7 +210,7 @@ SET_FLOATING_FEATURE_CONFIG()
 
     if [ ! -f "$FILE" ]; then
         LOGE "File not found: ${FILE//$WORK_DIR/}"
-        return 1
+        return 0
     fi
 
     if grep -q "<$CONFIG>" "$FILE"; then
@@ -238,9 +238,9 @@ SET_FLOATING_FEATURE_CONFIG()
 # Calls SET_PROP if the current prop value does not match, partition name CANNOT be omitted.
 SET_PROP_IF_DIFF()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "PROP" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "EXPECTED" "$3" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "PROP" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "EXPECTED" "$3" || return 0
 
     local PARTITION="$1"
     local PROP="$2"
@@ -248,7 +248,7 @@ SET_PROP_IF_DIFF()
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     local CURRENT

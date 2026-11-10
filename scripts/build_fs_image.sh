@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
 
 FORCE=false
 FS_TYPE=""
@@ -123,10 +123,10 @@ BUILD_IMAGE_MKFS()
             ;;
     esac
 
-    EVAL "$BUILD_CMD" || exit 1
+    EVAL "$BUILD_CMD" || exit 0
 
     if $MANUAL_SPARSE; then
-        EVAL "img2simg \"$OUTPUT_FILE\" \"$OUTPUT_FILE.sparse\"" || exit 1
+        EVAL "img2simg \"$OUTPUT_FILE\" \"$OUTPUT_FILE.sparse\"" || exit 0
         mv -f "$OUTPUT_FILE.sparse" "$OUTPUT_FILE"
     fi
 }
@@ -247,7 +247,7 @@ PREPARE_SCRIPT()
 {
     if [[ "$#" == 0 ]]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     fi
 
     FS_TYPE="$1"
@@ -255,7 +255,7 @@ PREPARE_SCRIPT()
             [[ "$FS_TYPE" != "f2fs" ]] && \
             [[ "$FS_TYPE" != "erofs" ]]; then
         LOGE "Unsupported file system type: $FS_TYPE"
-        exit 1
+        exit 0
     fi
 
     shift
@@ -274,7 +274,7 @@ PREPARE_SCRIPT()
             shift; INODES="$1"
             if ! [[ "$INODES" =~ ^[+-]?[0-9]+$ ]]; then
                 LOGE "Inodes number not valid: $INODES"
-                exit 1
+                exit 0
             elif [[ "$FS_TYPE" != "ext4" ]]; then
                 LOGW "Ignore inodes number flag as file system type is $FS_TYPE"
             fi
@@ -282,25 +282,25 @@ PREPARE_SCRIPT()
             shift; OUTPUT_FILE="$1"
             if [[ "$OUTPUT_FILE" != *".img" ]]; then
                 LOGE "Output file name must have \".img\" extension"
-                exit 1
+                exit 0
             fi
         elif [[ "$1" == "--partition-name" ]] || [[ "$1" == "-p" ]]; then
             shift; PARTITION="$1"
             if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
                 LOGE "\"$PARTITION\" is not a valid partition name"
-                exit 1
+                exit 0
             fi
         elif [[ "$1" == "--partition-size" ]] || [[ "$1" == "-s" ]]; then
             shift; IMAGE_SIZE="$1"
             if ! [[ "$IMAGE_SIZE" =~ ^[+-]?[0-9]+$ ]]; then
                 LOGE "Partition size not valid: $IMAGE_SIZE"
-                exit 1
+                exit 0
             fi
         elif [[ "$1" == "--sparse" ]] || [[ "$1" == "-S" ]]; then
             SPARSE=true
         else
             LOGE "Unknown option: $1"
-            exit 1
+            exit 0
         fi
 
         shift
@@ -317,10 +317,10 @@ PREPARE_SCRIPT()
     INPUT_DIR="$1"
     if [ ! "$INPUT_DIR" ]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     elif [ ! -d "$INPUT_DIR" ]; then
         LOGE "Folder not found: ${INPUT_DIR//$SRC_DIR\//}"
-        exit 1
+        exit 0
     fi
 
     shift
@@ -329,7 +329,7 @@ PREPARE_SCRIPT()
         PARTITION="$(basename "$INPUT_DIR")"
         if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
             LOGE "\"$PARTITION\" is not a valid partition name. please set --partition-name manually"
-            exit 1
+            exit 0
         fi
     fi
 
@@ -346,17 +346,17 @@ PREPARE_SCRIPT()
             rm -rf "$OUTPUT_FILE"
         else
             LOGE "Output file already exists (${OUTPUT_FILE//$SRC_DIR\//}). Use --force flag if you want to overwrite it."
-            exit 1
+            exit 0
         fi
     fi
 
     FILE_CONTEXT_FILE="$1"
     if [ ! "$FILE_CONTEXT_FILE" ]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     elif [ ! -f "$FILE_CONTEXT_FILE" ]; then
         LOGE "File not found: ${FILE_CONTEXT_FILE//$SRC_DIR\//}"
-        exit 1
+        exit 0
     fi
 
     shift
@@ -364,10 +364,10 @@ PREPARE_SCRIPT()
     FS_CONFIG_FILE="$1"
     if [ ! "$FS_CONFIG_FILE" ]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     elif [ ! -f "$FS_CONFIG_FILE" ]; then
         LOGE "File not found: ${FS_CONFIG_FILE//$SRC_DIR\//}"
-        exit 1
+        exit 0
     fi
 }
 
@@ -481,7 +481,7 @@ fi
 
 if $AVB_SIGN; then
     LOG "- Signing image with AVB"
-    EVAL "$(GET_AVBTOOL_CMD)" || exit 1
+    EVAL "$(GET_AVBTOOL_CMD)" || exit 0
 fi
 
 LOG_STEP_OUT

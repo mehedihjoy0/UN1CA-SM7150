@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || return 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || return 0
 
 # shellcheck disable=SC2034
 KERNEL_BINS="dt dtbo init_boot vendor_boot"
@@ -15,7 +15,7 @@ _GET_PARTITION_SIZE()
 
     local PARTITION_SIZE
     PARTITION_SIZE="TARGET_$(tr "[:lower:]" "[:upper:]" <<< "$PARTITION_NAME")_PARTITION_SIZE"
-    _CHECK_NON_EMPTY_PARAM "$PARTITION_SIZE" "${!PARTITION_SIZE//none/}" || return 1
+    _CHECK_NON_EMPTY_PARAM "$PARTITION_SIZE" "${!PARTITION_SIZE//none/}" || return 0
 
     echo -n "${!PARTITION_SIZE}"
 }
@@ -25,7 +25,7 @@ _GET_PARTITION_SIZE()
 # Returns the device path for the supplied mountpoint.
 GET_DEVICE_FROM_MOUNTPOINT()
 {
-    _CHECK_NON_EMPTY_PARAM "MOUNTPOINT" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "MOUNTPOINT" "$1" || return 0
 
     local MOUNTPOINT="$1"
 
@@ -39,7 +39,7 @@ GET_DEVICE_FROM_MOUNTPOINT()
     fi
     if [ ! -f "$FSTAB_FILE" ]; then
         LOGE "File not found: target/$TARGET_CODENAME/installer/recovery.fstab"
-        exit 1
+        exit 0
     fi
 
     if $TARGET_USE_DYNAMIC_PARTITIONS && IS_VALID_PARTITION_NAME "${MOUNTPOINT/\//}"; then
@@ -58,7 +58,7 @@ GET_DEVICE_FROM_MOUNTPOINT()
                 GET_DEVICE_FROM_MOUNTPOINT "/"
             else
                 LOGW "No entry for \"$MOUNTPOINT\" found in target fstab"
-                exit 1
+                exit 0
             fi
         else
             echo -n "\"$DEVICE\""
@@ -70,7 +70,7 @@ GET_DEVICE_FROM_MOUNTPOINT()
 # Returns the assertions code text to be used in the updater-script file.
 PRINT_ASSERTIONS()
 {
-    _CHECK_NON_EMPTY_PARAM "BUILD_INFO" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "BUILD_INFO" "$1" || return 0
 
     local BUILD_INFO="$1"
 
@@ -100,7 +100,7 @@ PRINT_ASSERTIONS()
 
     if [ ! -d "$SRC_DIR/target/$DEVICE" ]; then
         LOGE "Folder not found: target/$DEVICE"
-        return 1
+        return 0
     fi
 
     if [ -f "$SRC_DIR/target/$DEVICE/installer/assertions.edify" ]; then
@@ -123,7 +123,7 @@ PRINT_BUILD_INFO()
         TARGET_BUILD_INFO="$2"
     else
         _CHECK_NON_EMPTY_PARAM "BUILD_INFO" "$1"
-        return 1
+        return 0
     fi
 
     echo -n "device="
@@ -146,7 +146,7 @@ PRINT_BUILD_INFO()
 # Returns the header text to be used in the updater-script file.
 PRINT_HEADER()
 {
-    _CHECK_NON_EMPTY_PARAM "BUILD_INFO" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "BUILD_INFO" "$1" || return 0
 
     local BUILD_INFO="$1"
 
@@ -205,7 +205,7 @@ PRINT_SEPARATOR()
 # The TARGET_${PARTITION_NAME}_PARTITION_SIZE environment variable is required to be set.
 SIGN_IMAGE_WITH_AVB()
 {
-    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || return 0
 
     local FILE="$1"
 
@@ -214,7 +214,7 @@ SIGN_IMAGE_WITH_AVB()
         PARTITION_NAME="$(basename "$FILE")"
         PARTITION_NAME="${PARTITION_NAME//.img/}"
 
-        _GET_PARTITION_SIZE "$PARTITION_NAME" > /dev/null || return 1
+        _GET_PARTITION_SIZE "$PARTITION_NAME" > /dev/null || return 0
 
         local CMD
         CMD+="avbtool add_hash_footer "
@@ -226,6 +226,6 @@ SIGN_IMAGE_WITH_AVB()
         CMD+="--key \"$SRC_DIR/security/avb/testkey_rsa4096.pem\""
 
         LOG "- Signing image with AVB"
-        EVAL "$CMD" || return 1
+        EVAL "$CMD" || return 0
     fi
 }

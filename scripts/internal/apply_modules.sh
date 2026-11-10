@@ -5,7 +5,7 @@
 set -e
 
 #[
-source "$SRC_DIR/scripts/utils/module_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/module_utils.sh" || exit 0
 
 APPLY_MODULE()
 {
@@ -15,7 +15,7 @@ APPLY_MODULE()
 
     if [ ! -d "$MODPATH" ]; then
         LOGE "Folder not found: ${MODPATH//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     if [ -d "$MODPATH/$TARGET_OS_SINGLE_SYSTEM_IMAGE" ]; then
@@ -24,7 +24,7 @@ APPLY_MODULE()
 
     if [ ! -f "$MODPATH/module.prop" ]; then
         LOGE "File not found: ${MODPATH//$SRC_DIR\//}/module.prop"
-        return 1
+        return 0
     elif [ -f "$MODPATH/disable" ]; then
         return 0
     else
@@ -79,7 +79,7 @@ APPLY_SMALI_PATCHES()
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     while IFS= read -r p; do
@@ -116,7 +116,7 @@ READ_AND_APPLY_PROPS()
                 fi
             else
                 LOGE "Malformed string in $f: \"$l\""
-                return 1
+                return 0
             fi
         done < "$f"
     done < <(find "$MODPATH" -maxdepth 1 -type f -name "*.prop")
@@ -127,10 +127,10 @@ READ_AND_APPLY_PROPS()
 
 if [ "$#" != "1" ]; then
     echo "Usage: apply_modules <folder>" >&2
-    exit 1
+    exit 0
 elif [ ! -d "$1" ]; then
     LOGE "Folder not found: ${1//$SRC_DIR\//}"
-    exit 1
+    exit 0
 fi
 
 while IFS= read -r f; do

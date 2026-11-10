@@ -17,10 +17,10 @@ source "$SRC_DIR/scripts/utils/common_utils.sh"
 # - strip <method>: Deletes the supplied method in the provided smali file
 SMALI_PATCH()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "SMALI" "$3" || return 1
-    _CHECK_NON_EMPTY_PARAM "OPERATION" "$4" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "SMALI" "$3" || return 0
+    _CHECK_NON_EMPTY_PARAM "OPERATION" "$4" || return 0
 
     local PARTITION="$1"
     local FILE="$2"
@@ -29,33 +29,33 @@ SMALI_PATCH()
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     while [[ "${FILE:0:1}" == "/" ]]; do
         FILE="${FILE:1}"
     done
 
-    DECODE_APK "$PARTITION" "$FILE" || return 1
+    DECODE_APK "$PARTITION" "$FILE" || return 0
 
     if [[ "$OPERATION" != "null" ]] && [[ "$OPERATION" != "remove" ]] && \
         [[ "$OPERATION" != "replace" ]] && [[ "$OPERATION" != "replaceall" ]] && \
             [[ "$OPERATION" != "return" ]] && [[ "$OPERATION" != "strip" ]]; then
         LOGE "Operation not valid: \"$OPERATION\""
-        return 1
+        return 0
     fi
 
     if [[ "$OPERATION" == "replaceall" ]]; then
-        _CHECK_NON_EMPTY_PARAM "VALUE" "$5" || return 1
+        _CHECK_NON_EMPTY_PARAM "VALUE" "$5" || return 0
         local VALUE="$5"
         local REPLACEMENT="$6"
     elif [[ "$OPERATION" != "remove" ]]; then
-        _CHECK_NON_EMPTY_PARAM "METHOD" "$5" || return 1
+        _CHECK_NON_EMPTY_PARAM "METHOD" "$5" || return 0
         local METHOD="$5"
 
         if ! [[ "$METHOD" =~ ^[A-Za-z0-9\$\<\-].*\(.*\).* ]]; then
             LOGE "Method name not valid: \"$METHOD\""
-            return 1
+            return 0
         fi
     fi
 
@@ -64,7 +64,7 @@ SMALI_PATCH()
     fi
 
     if [[ "$OPERATION" == "replace" ]]; then
-        _CHECK_NON_EMPTY_PARAM "VALUE" "$6" || return 1
+        _CHECK_NON_EMPTY_PARAM "VALUE" "$6" || return 0
         local VALUE="$6"
         local REPLACEMENT="$7"
     fi
@@ -109,7 +109,7 @@ SMALI_PATCH()
             done
             echo -e "\033[0m" >&2
 
-            return 1
+            return 0
         fi
     fi
 
@@ -128,7 +128,7 @@ SMALI_PATCH()
             echo -e "\033[0m" >&2
         fi
 
-        return 1
+        return 0
     elif [[ "$OPERATION" == "remove" ]]; then
         local USED
         USED="$(find "$FILE_PATH" ! -path "*$SMALI" -type f -exec grep -r -n -- "$(cut -d "." -f "1" <<< "${SMALI#*/}");" {} \+ || true)"
@@ -141,11 +141,11 @@ SMALI_PATCH()
             [ "$(wc -l <<< "$USED")" -gt 10 ] && \
                 echo -e -n "\n    ...and other $(($(wc -l <<< "$USED") - 10)) matches" >&2
             echo -e "\033[0m" >&2
-            return 1
+            return 0
         fi
 
         LOG "- Removing \"$SMALI\" from /$PARTITION/$FILE"
-        EVAL "LC_ALL=C rm \"$FILE_PATH/${SMALI//$/\\$}\"" || return 1
+        EVAL "LC_ALL=C rm \"$FILE_PATH/${SMALI//$/\\$}\"" || return 0
         return 0
     fi
 
@@ -173,7 +173,7 @@ SMALI_PATCH()
                 echo -e "\033[0m" >&2
             fi
 
-            return 1
+            return 0
         fi
     fi
 
@@ -195,7 +195,7 @@ SMALI_PATCH()
             [ "$(wc -l <<< "$USED")" -gt 10 ] && \
                 echo -e -n "\n    ...and other $(($(wc -l <<< "$USED") - 10)) matches" >&2
             echo -e "\033[0m" >&2
-            return 1
+            return 0
         fi
 
         LOG "- Stripping method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
@@ -218,7 +218,7 @@ SMALI_PATCH()
         AFTER="$(sha1sum "$FILE_PATH/$SMALI")"
         if [[ "$BEFORE" == "$AFTER" ]]; then
             LOGE "Failed to strip method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-            return 1
+            return 0
         fi
 
     # Remove the contents of method, leave declaration.
@@ -229,7 +229,7 @@ SMALI_PATCH()
         RET="${METHOD#*)}"
         if [[ "$RET" != "V" ]]; then
             LOGE "Cannot nullify non-void method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-            return 1
+            return 0
         else
             RET="return-void"
         fi
@@ -259,7 +259,7 @@ SMALI_PATCH()
         AFTER="$(sha1sum "$FILE_PATH/$SMALI")"
         if [[ "$BEFORE" == "$AFTER" ]]; then
             LOGE "Failed to nullify method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-            return 1
+            return 0
         fi
 
     # Replace the method contents with a single return.
@@ -282,12 +282,12 @@ SMALI_PATCH()
         RET="${METHOD#*)}"
         if [[ "$RET" == "V" ]]; then
             LOGE "Cannot change return value of void method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-            return 1
+            return 0
         elif [[ "$RET" == "Ljava/lang/String;" ]]; then
             VALUE="\"$VALUE\""
             RET="return-object $REG"
         elif [[ "$RET" =~ ^\[*[ZBCSIJFD]$ ]]; then
-            _CHECK_NON_EMPTY_PARAM "VALUE" "$VALUE" || return 1
+            _CHECK_NON_EMPTY_PARAM "VALUE" "$VALUE" || return 0
 
             # Boolean type.
             if [[ "$RET" == "Z" ]]; then
@@ -299,7 +299,7 @@ SMALI_PATCH()
 
                 if [[ "$VALUE" != "0x0" ]] && [[ "$VALUE" != "0x1" ]]; then
                     LOGE "Cannot use a constant value for method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-                    return 1
+                    return 0
                 fi
             fi
 
@@ -310,7 +310,7 @@ SMALI_PATCH()
 
             if [[ "$VALUE" =~ ^\".*\"$ ]]; then
                 LOGE "Cannot use a string value for method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-                return 1
+                return 0
             fi
 
             # Long type.
@@ -320,7 +320,7 @@ SMALI_PATCH()
                 RET="return $REG"
             fi
         else
-            _CHECK_NON_EMPTY_PARAM "VALUE" "$VALUE" || return 1
+            _CHECK_NON_EMPTY_PARAM "VALUE" "$VALUE" || return 0
 
             if [[ "$VALUE" == "null" ]]; then
                 VALUE="0x0"
@@ -328,7 +328,7 @@ SMALI_PATCH()
 
             if [[ "$VALUE" != "0x0" ]]; then
                 LOGE "Cannot use a constant value for method \"$METHOD\" in /$PARTITION/$FILE/$SMALI"
-                return 1
+                return 0
             fi
 
             RET="return-object $REG"
@@ -362,7 +362,7 @@ SMALI_PATCH()
 
         else
             LOGE "Return value for method \"$METHOD\" in /$PARTITION/$FILE/$SMALI not valid: \"$VALUE\""
-            return 1
+            return 0
         fi
 
         LOG "- Replacing return value of method \"$METHOD\" in /$PARTITION/$FILE/$SMALI to \"$VALUE\""
@@ -392,7 +392,7 @@ SMALI_PATCH()
         AFTER="$(sha1sum "$FILE_PATH/$SMALI")"
         if [[ "$BEFORE" == "$AFTER" ]]; then
             LOGE "Failed to replace return value of method \"$METHOD\" in /$PARTITION/$FILE/$SMALI to \"$VALUE\""
-            return 1
+            return 0
         fi
 
     # Replace a string with another string inside the method.
@@ -431,7 +431,7 @@ SMALI_PATCH()
         AFTER="$(sha1sum "$FILE_PATH/$SMALI")"
         if [[ "$BEFORE" == "$AFTER" ]]; then
             LOGE "Failed to replace value \"$VALUE\" of method \"$METHOD\" in /$PARTITION/$FILE/$SMALI with \"$REPLACEMENT\""
-            return 1
+            return 0
         fi
 
     # Replace all occurrences of value with another.
@@ -439,12 +439,12 @@ SMALI_PATCH()
     elif [[ "$OPERATION" == "replaceall" ]]; then
         LOG "- Replacing all occurrences of \"$VALUE\" with \"$REPLACEMENT\" in /$PARTITION/$FILE/$SMALI"
 
-        EVAL "sed -i \"s|$VALUE|$REPLACEMENT|g\" \"$FILE_PATH/${SMALI//$/\\$}\"" || return 1
+        EVAL "sed -i \"s|$VALUE|$REPLACEMENT|g\" \"$FILE_PATH/${SMALI//$/\\$}\"" || return 0
 
         AFTER="$(sha1sum "$FILE_PATH/$SMALI")"
         if [[ "$BEFORE" == "$AFTER" ]]; then
             LOGE "Failed to replace all occurrences of \"$VALUE\" with \"$REPLACEMENT\" in /$PARTITION/$FILE/$SMALI"
-            return 1
+            return 0
         fi
     fi
 

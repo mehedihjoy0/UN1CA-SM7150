@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/install_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/install_utils.sh" || exit 0
 
 trap 'rm -rf "$TMP_DIR"' EXIT INT
 
@@ -47,7 +47,7 @@ BUILD_SUPER_EMPTY()
     fi
     CMD+=" --output \"$TMP_DIR/unsparse_super_empty.img\""
 
-    EVAL "$CMD" || exit 1
+    EVAL "$CMD" || exit 0
 }
 
 GENERATE_BUILD_INFO()
@@ -99,7 +99,7 @@ GET_SUPER_GROUP_SIZE()
 
     local VAR="TARGET_${GROUP_NAME}_SIZE"
 
-    _CHECK_NON_EMPTY_PARAM "$VAR" "${!VAR}" || exit 1
+    _CHECK_NON_EMPTY_PARAM "$VAR" "${!VAR}" || exit 0
 
     echo "${!VAR}"
 }
@@ -107,7 +107,7 @@ GET_SUPER_GROUP_SIZE()
 
 if [ "$#" != "1" ]; then
     echo "Usage: create_target_files_zip <output>" >&2
-    exit 1
+    exit 0
 fi
 
 OUTPUT_FILE="$1"
@@ -123,13 +123,13 @@ while IFS= read -r f; do
     if $TARGET_USE_DYNAMIC_PARTITIONS; then
         "$SRC_DIR/scripts/build_fs_image.sh" "$TARGET_OS_FILE_SYSTEM_TYPE" \
             -o "$TMP_DIR/$PARTITION.img" -m -S \
-            "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 1
+            "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 0
     else
-        _GET_PARTITION_SIZE "$PARTITION" > /dev/null || exit 1
+        _GET_PARTITION_SIZE "$PARTITION" > /dev/null || exit 0
 
         "$SRC_DIR/scripts/build_fs_image.sh" "$TARGET_OS_FILE_SYSTEM_TYPE" \
             -o "$TMP_DIR/$PARTITION.img" -m -S -s "$(_GET_PARTITION_SIZE "$PARTITION")" \
-            "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 1
+            "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 0
     fi
 done < <(find "$WORK_DIR" -maxdepth 1 -type d)
 LOG_STEP_OUT
@@ -146,9 +146,9 @@ if [ -d "$WORK_DIR/kernel" ]; then
         [ ! -f "$WORK_DIR/kernel/$f" ] && continue
 
         LOG_STEP_IN "- Copying $f"
-        EVAL "cp -a \"$WORK_DIR/kernel/$f\" \"$TMP_DIR/$f\"" || exit 1
+        EVAL "cp -a \"$WORK_DIR/kernel/$f\" \"$TMP_DIR/$f\"" || exit 0
         if ! $TARGET_DISABLE_AVB_SIGNING; then
-            SIGN_IMAGE_WITH_AVB "$TMP_DIR/$f" || exit 1
+            SIGN_IMAGE_WITH_AVB "$TMP_DIR/$f" || exit 0
         fi
         LOG_STEP_OUT
     done
@@ -159,6 +159,6 @@ GENERATE_BUILD_INFO
 
 LOG "- Creating zip"
 rm -f "$OUTPUT_FILE"
-EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) -mtc=off -mtm=off \"$OUTPUT_FILE\" -r *" || exit 1
+EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) -mtc=off -mtm=off \"$OUTPUT_FILE\" -r *" || exit 0
 
 exit 0

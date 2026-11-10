@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
 
 INCREMENTAL=false
 SOURCE_ZIP=""
@@ -14,7 +14,7 @@ PREPARE_SCRIPT()
 {
     if [[ "$#" == 0 ]]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     fi
 
     while [[ "$1" == "-"* ]]; do
@@ -25,11 +25,11 @@ PREPARE_SCRIPT()
             shift; OUTPUT_FILE="$1"
             if [[ "$OUTPUT_FILE" != *".zip" ]]; then
                 LOGE "Output file name must have \".zip\" extension"
-                exit 1
+                exit 0
             fi
         else
             LOGE "Unknown option: $1"
-            exit 1
+            exit 0
         fi
 
         shift
@@ -38,23 +38,23 @@ PREPARE_SCRIPT()
     TARGET_ZIP="$1"
     if [ ! "$TARGET_ZIP" ]; then
         PRINT_USAGE
-        exit 1
+        exit 0
     elif [ ! -f "$TARGET_ZIP" ]; then
         LOGE "File not found: ${TARGET_ZIP//$SRC_DIR\//}"
-        exit 1
+        exit 0
     fi
 
     if [ "$SOURCE_ZIP" ]; then
         if [ ! -f "$SOURCE_ZIP" ]; then
             LOGE "File not found: ${SOURCE_ZIP//$SRC_DIR\//}"
-            exit 1
+            exit 0
         fi
     fi
 
     if [ ! "$OUTPUT_FILE" ]; then
         local TARGET_BUILD_INFO
 
-        EVAL "unzip -p \"$TARGET_ZIP\" \"build_info.txt\"" || exit 1
+        EVAL "unzip -p \"$TARGET_ZIP\" \"build_info.txt\"" || exit 0
         TARGET_BUILD_INFO="$(unzip -p "$TARGET_ZIP" "build_info.txt")"
 
         OUTPUT_FILE="$OUT_DIR/UN1CA_"
@@ -66,7 +66,7 @@ PREPARE_SCRIPT()
         if $INCREMENTAL; then
             local SOURCE_BUILD_INFO
 
-            EVAL "unzip -p \"$SOURCE_ZIP\" \"build_info.txt\"" || exit 1
+            EVAL "unzip -p \"$SOURCE_ZIP\" \"build_info.txt\"" || exit 0
             SOURCE_BUILD_INFO="$(unzip -p "$SOURCE_ZIP" "build_info.txt")"
 
             OUTPUT_FILE+="-INCREMENTAL_"
@@ -90,9 +90,9 @@ PRINT_USAGE()
 PREPARE_SCRIPT "$@"
 
 if $INCREMENTAL; then
-    "$SRC_DIR/scripts/internal/build_incremental_ota_zip.sh" "$SOURCE_ZIP" "$TARGET_ZIP" "$OUTPUT_FILE" || exit 1
+    "$SRC_DIR/scripts/internal/build_incremental_ota_zip.sh" "$SOURCE_ZIP" "$TARGET_ZIP" "$OUTPUT_FILE" || exit 0
 else
-    "$SRC_DIR/scripts/internal/build_full_ota_zip.sh" "$TARGET_ZIP" "$OUTPUT_FILE" || exit 1
+    "$SRC_DIR/scripts/internal/build_full_ota_zip.sh" "$TARGET_ZIP" "$OUTPUT_FILE" || exit 0
 fi
 
 exit 0

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/install_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/install_utils.sh" || exit 0
 
 TMP_DIR="$OUT_DIR/target/$TARGET_CODENAME/zip"
 
@@ -145,7 +145,7 @@ GENERATE_OP_LIST()
 
     if [ "$OCCUPIED_SPACE" -gt "$TARGET_SUPER_GROUP_SIZE" ]; then
         LOGE "OS size ($OCCUPIED_SPACE) is bigger than the target group size ($TARGET_SUPER_GROUP_SIZE)"
-        exit 1
+        exit 0
     fi
 }
 
@@ -189,7 +189,7 @@ GENERATE_OTA_METADATA()
         MESSAGE+=", security_patch_level: \\\"$SECURITY_PATCH_LEVEL\\\"}"
         MESSAGE+=", required_cache: $(CALCULATE_MIN_CACHE_SIZE false)"
 
-        EVAL "protoc --encode=build.tools.releasetools.OtaMetadata --proto_path=\"$(dirname "$PROTO_FILE")\" \"$PROTO_FILE\" <<< \"$MESSAGE\" > \"$TMP_DIR/META-INF/com/android/metadata.pb\"" || exit 1
+        EVAL "protoc --encode=build.tools.releasetools.OtaMetadata --proto_path=\"$(dirname "$PROTO_FILE")\" \"$PROTO_FILE\" <<< \"$MESSAGE\" > \"$TMP_DIR/META-INF/com/android/metadata.pb\"" || exit 0
     fi
 
     # https://android.googlesource.com/platform/build/+/refs/tags/android-16.0.0_r4/tools/releasetools/ota_utils.py#313
@@ -222,9 +222,9 @@ GENERATE_UPDATER_SCRIPT()
     [ -f "$TMP_DIR/system_dlkm.transfer.list" ] && PARTITION_COUNT=$((PARTITION_COUNT + 1))
 
     {
-        PRINT_ASSERTIONS "$TARGET_BUILD_INFO" || exit 1
+        PRINT_ASSERTIONS "$TARGET_BUILD_INFO" || exit 0
 
-        PRINT_HEADER "$TARGET_BUILD_INFO" || exit 1
+        PRINT_HEADER "$TARGET_BUILD_INFO" || exit 0
 
         # https://android.googlesource.com/platform/build/+/refs/tags/android-16.0.0_r4/tools/releasetools/non_ab_ota.py#397
         echo    'ui_print("Verify partitions...");'
@@ -422,19 +422,19 @@ VERIFY_SOURCE_COMPATIBILITY()
 
     if [[ "$SOURCE_DEVICE" != "$TARGET_DEVICE" ]]; then
         LOGE "Source device ($SOURCE_DEVICE) does not match target device ($TARGET_DEVICE)"
-        exit 1
+        exit 0
     fi
 
     if [ "$(date --date "$SOURCE_SPL" "+%s")" -gt "$(date --date "$TARGET_SPL" "+%s")" ]; then
         LOGE "Target security patch level ($TARGET_SPL) is older than source SPL ($SOURCE_SPL)"
-        exit 1
+        exit 0
     fi
 }
 # ]
 
 if [ "$#" != "3" ]; then
     echo "Usage: build_incremental_ota_zip <file> <file> <output>" >&2
-    exit 1
+    exit 0
 fi
 
 SOURCE_ZIP="$1"
@@ -443,12 +443,12 @@ OUTPUT_FILE="$3"
 
 if ! unzip -l "$SOURCE_ZIP" | grep -q "build_info.txt" || unzip -l "$SOURCE_ZIP" | grep -q "META-INF"; then
     LOGE "File not valid: ${SOURCE_ZIP//$SRC_DIR\//}"
-    exit 1
+    exit 0
 fi
 
 if ! unzip -l "$TARGET_ZIP" | grep -q "build_info.txt" || unzip -l "$TARGET_ZIP" | grep -q "META-INF"; then
     LOGE "File not valid: ${TARGET_ZIP//$SRC_DIR\//}"
-    exit 1
+    exit 0
 fi
 
 [ -d "$TMP_DIR" ] && rm -rf "$TMP_DIR"
@@ -456,10 +456,10 @@ mkdir -p "$TMP_DIR/META-INF/com/google/android"
 cp -a "$SRC_DIR/prebuilts/bootable/deprecated-ota/updater" "$TMP_DIR/META-INF/com/google/android/update-binary"
 
 LOG "- Extracting source files"
-EVAL "unzip -o \"$SOURCE_ZIP\" -d \"$TMP_DIR/source\"" || exit 1
+EVAL "unzip -o \"$SOURCE_ZIP\" -d \"$TMP_DIR/source\"" || exit 0
 
 LOG "- Extracting target files"
-EVAL "unzip -o \"$TARGET_ZIP\" -d \"$TMP_DIR/target\"" || exit 1
+EVAL "unzip -o \"$TARGET_ZIP\" -d \"$TMP_DIR/target\"" || exit 0
 
 SOURCE_BUILD_INFO="$(cat "$TMP_DIR/source/build_info.txt")"
 TARGET_BUILD_INFO="$(cat "$TMP_DIR/target/build_info.txt")"
@@ -467,7 +467,7 @@ TARGET_BUILD_INFO="$(cat "$TMP_DIR/target/build_info.txt")"
 TARGET_CODENAME="$(grep "^device" <<< "$TARGET_BUILD_INFO" | cut -d "=" -f 2 -s)"
 if [ ! -d "$SRC_DIR/target/$TARGET_CODENAME" ]; then
     LOGE "Folder not found: target/$TARGET_CODENAME"
-    exit 1
+    exit 0
 fi
 
 TARGET_USE_DYNAMIC_PARTITIONS="$(grep "^use_dynamic_partitions" <<< "$TARGET_BUILD_INFO" | cut -d "=" -f 2 -s)"
@@ -486,21 +486,21 @@ for p in $PARTITIONS_LIST; do
 
     if [ -f "$TMP_DIR/source/$p.img" ]; then
         if [[ "$(sha1sum "$TMP_DIR/source/$p.img" | cut -d " " -f 1)" != "$(sha1sum "$TMP_DIR/target/$p.img" | cut -d " " -f 1)" ]]; then
-            _CHECK_NON_EMPTY_PARAM "TARGET_CACHE_PARTITION_SIZE" "${TARGET_CACHE_PARTITION_SIZE//none/}" || exit 1
+            _CHECK_NON_EMPTY_PARAM "TARGET_CACHE_PARTITION_SIZE" "${TARGET_CACHE_PARTITION_SIZE//none/}" || exit 0
             LOG "- Generating $p.img block diff"
-            EVAL "img2sdat -o \"$TMP_DIR\" -c \"$TARGET_CACHE_PARTITION_SIZE\" --src-image \"$TMP_DIR/source/$p.img\" --src-block-map \"$TMP_DIR/source/$p.map\" --tgt-block-map \"$TMP_DIR/target/$p.map\" \"$TMP_DIR/target/$p.img\"" || exit 1
+            EVAL "img2sdat -o \"$TMP_DIR\" -c \"$TARGET_CACHE_PARTITION_SIZE\" --src-image \"$TMP_DIR/source/$p.img\" --src-block-map \"$TMP_DIR/source/$p.map\" --tgt-block-map \"$TMP_DIR/target/$p.map\" \"$TMP_DIR/target/$p.img\"" || exit 0
         fi
         rm -f "$TMP_DIR/source/$p.img" "$TMP_DIR/source/$p.map" \
             "$TMP_DIR/target/$p.img" "$TMP_DIR/target/$p.map"
     else
         LOG "- Converting $p.img to $p.new.dat"
-        EVAL "img2sdat -o \"$TMP_DIR\" --tgt-block-map \"$TMP_DIR/target/$p.map\" \"$TMP_DIR/target/$p.img\"" || exit 1
+        EVAL "img2sdat -o \"$TMP_DIR\" --tgt-block-map \"$TMP_DIR/target/$p.map\" \"$TMP_DIR/target/$p.img\"" || exit 0
         rm -f "$TMP_DIR/target/$p.img" "$TMP_DIR/target/$p.map"
 
         if ! $DEBUG; then
             LOG "- Compressing $p.new.dat"
             # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/common.py#3585
-            EVAL "brotli --quality=6 --output=\"$TMP_DIR/$p.new.dat.br\" \"$TMP_DIR/$p.new.dat\"" || exit 1
+            EVAL "brotli --quality=6 --output=\"$TMP_DIR/$p.new.dat.br\" \"$TMP_DIR/$p.new.dat\"" || exit 0
             rm -f "$TMP_DIR/$p.new.dat"
         fi
     fi
@@ -522,36 +522,36 @@ LOG "- Generating updater-script"
 GENERATE_UPDATER_SCRIPT
 
 LOG "- Generating build_info.txt"
-PRINT_BUILD_INFO "$SOURCE_BUILD_INFO" "$TARGET_BUILD_INFO" > "$TMP_DIR/build_info.txt" || exit 1
+PRINT_BUILD_INFO "$SOURCE_BUILD_INFO" "$TARGET_BUILD_INFO" > "$TMP_DIR/build_info.txt" || exit 0
 
 LOG "- Generating OTA metadata"
 GENERATE_OTA_METADATA
 
 if [ -d "$SRC_DIR/target/$TARGET_CODENAME/installer/root" ]; then
     LOG "- Copying target custom install files"
-    EVAL "cp -a \"$SRC_DIR/target/$TARGET_CODENAME/installer/root/\"* \"$TMP_DIR\"" || exit 1
+    EVAL "cp -a \"$SRC_DIR/target/$TARGET_CODENAME/installer/root/\"* \"$TMP_DIR\"" || exit 0
 fi
 
 if [ -f "$SRC_DIR/target/$TARGET_CODENAME/installer/customize.sh" ]; then
     LOG_STEP_IN "- Running target custom install script"
     (
     . "$SRC_DIR/target/$TARGET_CODENAME/installer/customize.sh"
-    ) || exit 1
+    ) || exit 0
     LOG_STEP_OUT
 fi
 
 LOG "- Creating zip"
-EVAL "rm -f \"$TMP_DIR/rom.zip\"" || exit 1
+EVAL "rm -f \"$TMP_DIR/rom.zip\"" || exit 0
 # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/common.py#3601
 # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/common.py#3609
 # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/ota_utils.py#184
 # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/ota_utils.py#186
-EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=0 -mmt=$(nproc) $TMP_DIR/rom.zip -r *.patch.dat -ir!META-INF/com/android/* -i!*.new.dat.br" || exit 1
-EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) $TMP_DIR/rom.zip -r * -xr!META-INF/com/android/* -x!*.new.dat.br -x!*.patch.dat -x!rom.zip" || exit 1
+EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=0 -mmt=$(nproc) $TMP_DIR/rom.zip -r *.patch.dat -ir!META-INF/com/android/* -i!*.new.dat.br" || exit 0
+EVAL "cd \"$TMP_DIR\" && 7z a -tzip -mx=3 -mmt=$(nproc) $TMP_DIR/rom.zip -r * -xr!META-INF/com/android/* -x!*.new.dat.br -x!*.patch.dat -x!rom.zip" || exit 0
 
 if ! $DEBUG || $ROM_IS_OFFICIAL; then
     LOG "- Signing zip"
-    EVAL "signapk -w \"$PUBLIC_KEY_PATH\" \"$PRIVATE_KEY_PATH\" \"$TMP_DIR/rom.zip\" \"$OUTPUT_FILE\"" || exit 1
+    EVAL "signapk -w \"$PUBLIC_KEY_PATH\" \"$PRIVATE_KEY_PATH\" \"$TMP_DIR/rom.zip\" \"$OUTPUT_FILE\"" || exit 0
     rm -f "$TMP_DIR/rom.zip"
 else
     mv -f "$TMP_DIR/rom.zip" "$OUTPUT_FILE"

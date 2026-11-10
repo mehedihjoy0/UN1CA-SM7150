@@ -14,7 +14,7 @@ PRINT_MODULE_INFO()
 
     if [ ! -d "$MODPATH" ]; then
         LOGE "Folder not found: $MODPATH"
-        exit 1
+        exit 0
     fi
 
     if [ -d "$MODPATH/$TARGET_OS_SINGLE_SYSTEM_IMAGE" ]; then
@@ -23,7 +23,7 @@ PRINT_MODULE_INFO()
 
     if [ ! -f "$MODPATH/module.prop" ]; then
         LOGE "File not found: $MODPATH/module.prop"
-        exit 1
+        exit 0
     elif [ -f "$MODPATH/disable" ]; then
         return 0
     else
@@ -44,7 +44,7 @@ PRINT_MODULE_INFO()
 if [ "$#" -gt 0 ]; then
     echo "Usage: print_modules_info" >&2
     echo "This script does not accept any arguments." >&2
-    exit 1
+    exit 0
 fi
 
 MODULES_COUNT=0

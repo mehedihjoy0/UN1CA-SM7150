@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || return 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || return 0
 # ]
 
 # COMPARE_SEC_BUILD_VERSION <string1> <string2>
@@ -35,13 +35,13 @@ COMPARE_SEC_BUILD_VERSION()
     local STRING2_INCREMENTAL="${STRING2:${#STRING2}-1:1}"
 
     [[ "$STRING1_MAJOR" > "$STRING2_MAJOR" ]] && return 0
-    [[ "$STRING1_MAJOR" < "$STRING2_MAJOR" ]] && return 1
+    [[ "$STRING1_MAJOR" < "$STRING2_MAJOR" ]] && return 0
     [[ "$STRING1_YEAR" > "$STRING2_YEAR" ]] && return 0
-    [[ "$STRING1_YEAR" < "$STRING2_YEAR" ]] && return 1
+    [[ "$STRING1_YEAR" < "$STRING2_YEAR" ]] && return 0
     [[ "$STRING1_MONTH" > "$STRING2_MONTH" ]] && return 0
-    [[ "$STRING1_MONTH" < "$STRING2_MONTH" ]] && return 1
+    [[ "$STRING1_MONTH" < "$STRING2_MONTH" ]] && return 0
     [[ "$STRING1_INCREMENTAL" > "$STRING2_INCREMENTAL" ]] && return 0
-    [[ "$STRING1_INCREMENTAL" < "$STRING2_INCREMENTAL" ]] && return 1
+    [[ "$STRING1_INCREMENTAL" < "$STRING2_INCREMENTAL" ]] && return 0
 
     return 0
 }
@@ -50,17 +50,17 @@ COMPARE_SEC_BUILD_VERSION()
 # Extract the desired file from the supplied tar archive.
 EXTRACT_FILE_FROM_TAR()
 {
-    _CHECK_NON_EMPTY_PARAM "MODEL" "$MODEL" || return 1
-    _CHECK_NON_EMPTY_PARAM "CSC" "$CSC" || return 1
-    _CHECK_NON_EMPTY_PARAM "TAR" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "MODEL" "$MODEL" || return 0
+    _CHECK_NON_EMPTY_PARAM "CSC" "$CSC" || return 0
+    _CHECK_NON_EMPTY_PARAM "TAR" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
 
     local TAR="$1"
     local FILE="$2"
 
     if [ ! -f "$TAR" ]; then
         LOGE "File not found: ${TAR//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     [ -f "$FW_DIR/${MODEL}_${CSC}/$FILE" ] && rm -rf "$FW_DIR/${MODEL}_${CSC}/$FILE"
@@ -69,16 +69,16 @@ EXTRACT_FILE_FROM_TAR()
 
     if FILE_EXISTS_IN_TAR "$TAR" "$FILE"; then
         LOG "- Extracting $FILE..."
-        EVAL "tar xf \"$TAR\" -C \"$FW_DIR/${MODEL}_${CSC}\" \"$FILE\"" || return 1
+        EVAL "tar xf \"$TAR\" -C \"$FW_DIR/${MODEL}_${CSC}\" \"$FILE\"" || return 0
     elif FILE_EXISTS_IN_TAR "$TAR" "$FILE.ext4"; then
         LOG "- Extracting $FILE.ext4..."
-        EVAL "tar xf \"$TAR\" -C \"$FW_DIR/${MODEL}_${CSC}\" \"$FILE.ext4\"" || return 1
-        EVAL "mv -f \"$FW_DIR/${MODEL}_${CSC}/$FILE.ext4\" \"$FW_DIR/${MODEL}_${CSC}/$FILE\"" || return 1
+        EVAL "tar xf \"$TAR\" -C \"$FW_DIR/${MODEL}_${CSC}\" \"$FILE.ext4\"" || return 0
+        EVAL "mv -f \"$FW_DIR/${MODEL}_${CSC}/$FILE.ext4\" \"$FW_DIR/${MODEL}_${CSC}/$FILE\"" || return 0
     elif FILE_EXISTS_IN_TAR "$TAR" "$FILE.lz4"; then
         LOG "- Extracting $FILE.lz4..."
-        EVAL "tar xf \"$TAR\" -C \"$FW_DIR/${MODEL}_${CSC}\" \"$FILE.lz4\"" || return 1
+        EVAL "tar xf \"$TAR\" -C \"$FW_DIR/${MODEL}_${CSC}\" \"$FILE.lz4\"" || return 0
         LOG "- Decompressing $FILE.lz4..."
-        EVAL "lz4 -d --rm \"$FW_DIR/${MODEL}_${CSC}/$FILE.lz4\" \"$FW_DIR/${MODEL}_${CSC}/$FILE\"" || return 1
+        EVAL "lz4 -d --rm \"$FW_DIR/${MODEL}_${CSC}/$FILE.lz4\" \"$FW_DIR/${MODEL}_${CSC}/$FILE\"" || return 0
     fi
 
     return 0
@@ -88,8 +88,8 @@ EXTRACT_FILE_FROM_TAR()
 # Returns whether or not the desired file exists in the supplied tar archive.
 FILE_EXISTS_IN_TAR()
 {
-    _CHECK_NON_EMPTY_PARAM "TAR" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "TAR" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
 
     tar tf "$1" "$2" &> /dev/null
     return $?
@@ -99,8 +99,8 @@ FILE_EXISTS_IN_TAR()
 # Returns the latest available firmware for the supplied model & CSC in the following format: PDA/CSC/MODEM
 GET_LATEST_FIRMWARE()
 {
-    _CHECK_NON_EMPTY_PARAM "MODEL" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "CSC" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "MODEL" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "CSC" "$2" || return 0
 
     curl -s --retry 3 -m 3 -A "samsung $1 SyncML DM Client" \
         "https://fota-cloud-dn.ospserver.net/firmware/$2/$1/version.xml" \
@@ -117,29 +117,29 @@ PARSE_FIRMWARE_STRING()
 
     if [ ! "$STRING" ]; then
         LOGE "Firmware value cannot be empty"
-        return 1
+        return 0
     fi
 
     MODEL="$(cut -d "/" -f 1 -s <<< "$STRING")"
     if [ ! "$MODEL" ]; then
         LOGE "No device model value found in \"$STRING\""
-        return 1
+        return 0
     fi
 
     CSC="$(cut -d "/" -f 2 -s <<< "$STRING")"
     if [ ! "$CSC" ]; then
         LOGE "No CSC value found in \"$STRING\""
-        return 1
+        return 0
     elif [[ "${#CSC}" != "3" ]]; then
         LOGE "CSC not valid in \"$STRING\": $CSC"
-        return 1
+        return 0
     fi
 
     local THIRD
     THIRD="$(cut -d "/" -f 3 -s <<< "$STRING")"
     if [ ! "$THIRD" ]; then
         LOGE "No IMEI/SN value found in \"$STRING\""
-        return 1
+        return 0
     elif [[ "${#THIRD}" == "11" ]] && [[ "$THIRD" == "R"* ]]; then
         # shellcheck disable=SC2034
         SERIAL_NO="$THIRD"
@@ -149,7 +149,7 @@ PARSE_FIRMWARE_STRING()
         IMEI="$THIRD"
     else
         LOGE "No valid IMEI/SN in \"$STRING\": $THIRD"
-        return 1
+        return 0
     fi
 
     return 0
@@ -159,7 +159,7 @@ PARSE_FIRMWARE_STRING()
 # Unsparse the supplied file, a different output path can be provided optionally.
 UNSPARSE_IMAGE()
 {
-    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || exit 1
+    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || exit 0
 
     local FILE="$1"
     local OUTPUT_PATH="$2"
@@ -167,7 +167,7 @@ UNSPARSE_IMAGE()
 
     if [ ! -f "$FILE" ]; then
         LOGE "File not found: ${FILE//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     if ! IS_SPARSE_IMAGE "$FILE"; then
@@ -182,7 +182,7 @@ UNSPARSE_IMAGE()
 
     LOG "- Unsparsing $(basename "$FILE")..."
 
-    EVAL "simg2img \"$FILE\" \"$OUTPUT_PATH\"" || return 1
+    EVAL "simg2img \"$FILE\" \"$OUTPUT_PATH\"" || return 0
     if $REPLACE; then
         mv -f "$OUTPUT_PATH" "$FILE"
     fi

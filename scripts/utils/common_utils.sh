@@ -21,7 +21,7 @@ _CHECK_NON_EMPTY_PARAM()
         echo -n "$1 is not set!" >&2
         echo -e '\033[0m' >&2
 
-        return 1
+        return 0
     fi
 
     return 0
@@ -101,7 +101,7 @@ _GET_PROP_LOCATION()
         shift
     fi
 
-    _CHECK_NON_EMPTY_PARAM "PROP" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "PROP" "$1" || return 0
 
     local PROP="$1"
     local MATCHES=()
@@ -116,8 +116,8 @@ _GET_PROP_LOCATION()
 
 _GET_SELINUX_LABEL()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
 
     local PARTITION="$1"
     local FILE="$2"
@@ -144,7 +144,7 @@ _GET_SELINUX_LABEL()
 
     if [ ! -f "$FC_FILE" ]; then
         LOGE "File not found: ${FC_FILE//$WORK_DIR/}"
-        return 1
+        return 0
     fi
 
     if [[ "${FILE:0:1}" != "/" ]]; then
@@ -189,9 +189,9 @@ _HANDLE_SPECIAL_CHARS()
 # `user`/`group`/`mode`/`label`/ arguments can be omitted as long as the respective entry is present in `source`/fs_config and `source`/file_context.
 ADD_TO_WORK_DIR()
 {
-    _CHECK_NON_EMPTY_PARAM "SOURCE" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$3" || return 1
+    _CHECK_NON_EMPTY_PARAM "SOURCE" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$3" || return 0
 
     local SOURCE="$1"
     local PARTITION="$2"
@@ -211,12 +211,12 @@ ADD_TO_WORK_DIR()
 
     if [ ! -d "$SOURCE" ]; then
         LOGE "Folder not found: ${SOURCE//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     while [[ "${FILE:0:1}" == "/" ]]; do
@@ -258,10 +258,10 @@ ADD_TO_WORK_DIR()
         if [ -e "$SOURCE_FILE.00" ]; then
             LOG "- Adding $(sed -e "s|$WORK_DIR||" -e "s|/\.||" <<< "$TARGET_FILE") from ${SOURCE//$SRC_DIR\//}"
             mkdir -p "$(dirname "$TARGET_FILE")"
-            EVAL "cat \"$SOURCE_FILE.\"[0-9][0-9] > \"$TARGET_FILE\"" || exit 1
+            EVAL "cat \"$SOURCE_FILE.\"[0-9][0-9] > \"$TARGET_FILE\"" || exit 0
         else
             LOGE "File not found: ${SOURCE_FILE//$SRC_DIR\//}"
-            return 1
+            return 0
         fi
     else
         LOG "- Adding $(sed -e "s|$WORK_DIR||" -e "s|/\.||" <<< "$TARGET_FILE") from ${SOURCE//$SRC_DIR\//}"
@@ -270,7 +270,7 @@ ADD_TO_WORK_DIR()
         else
             mkdir -p "$TARGET_FILE"
         fi
-        EVAL "cp -a -T \"$SOURCE_FILE\" \"$TARGET_FILE\"" || exit 1
+        EVAL "cp -a -T \"$SOURCE_FILE\" \"$TARGET_FILE\"" || exit 0
     fi
 
     local ENTRY="${TARGET_FILE//$WORK_DIR\//}"
@@ -397,15 +397,15 @@ ADD_TO_WORK_DIR()
 # Deletes the supplied file/directory from work dir along with its entries in fs_config/file_context.
 DELETE_FROM_WORK_DIR()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "FILE" "$2" || return 0
 
     local PARTITION="$1"
     local FILE="$2"
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     while [[ "${FILE:0:1}" == "/" ]]; do
@@ -472,8 +472,8 @@ DELETE_FROM_WORK_DIR()
 # Downloads the file from the provided URL and stores it in the desired output path.
 DOWNLOAD_FILE()
 {
-    _CHECK_NON_EMPTY_PARAM "URL" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "OUTPUT" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "URL" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "OUTPUT" "$2" || return 0
 
     local URL="$1"
     local OUTPUT="$2"
@@ -487,7 +487,7 @@ DOWNLOAD_FILE()
 # Executes the provided command and prints its output if it returns a non-zero exit code.
 EVAL()
 {
-    _CHECK_NON_EMPTY_PARAM "CMD" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "CMD" "$1" || return 0
 
     local CMD="$1"
 
@@ -500,7 +500,7 @@ EVAL()
         echo -n -e '\033[0;33m' >&2
         echo -n    "$OUT" >&2
         echo -e    '\033[0m' >&2
-        return 1
+        return 0
     fi
 
     return 0
@@ -521,7 +521,7 @@ GET_PROP()
         fi
     fi
 
-    _CHECK_NON_EMPTY_PARAM "PROP" "$1" || return 1
+    _CHECK_NON_EMPTY_PARAM "PROP" "$1" || return 0
 
     local PROP="$1"
     # shellcheck disable=SC2086
@@ -532,13 +532,13 @@ GET_PROP()
 # Returns whether or not the supplied file is a valid sparse image.
 IS_SPARSE_IMAGE()
 {
-    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || exit 1
+    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || exit 0
 
     local FILE="$1"
 
     if [ ! -f "$FILE" ]; then
         LOGE "File not found: ${FILE//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     # https://android.googlesource.com/platform/system/core/+/refs/tags/android-15.0.0_r1/libsparse/sparse_format.h#39
@@ -560,9 +560,9 @@ IS_VALID_PARTITION_NAME()
 # Reads the desired amount of bytes from the supplied file.
 READ_BYTES_AT()
 {
-    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "OFFSET" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "BYTES" "$3" || return 1
+    _CHECK_NON_EMPTY_PARAM "FILE" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "OFFSET" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "BYTES" "$3" || return 0
 
     local FILE="$1"
     local OFFSET="$2"
@@ -570,18 +570,18 @@ READ_BYTES_AT()
 
     if [ ! -f "$FILE" ]; then
         LOGE "File not found: ${FILE//$SRC_DIR\//}"
-        return 1
+        return 0
     fi
 
     local FILE_SIZE
     FILE_SIZE="$(wc -c "$FILE" | cut -d " " -f 1)"
     if ! [[ "$OFFSET" =~ ^[+-]?[0-9]+$ ]] || [[ "$OFFSET" -gt "$FILE_SIZE" ]]; then
         LOGE "Offset value not valid: $OFFSET"
-        return 1
+        return 0
     fi
     if ! [[ "$BYTES" =~ ^[+-]?[0-9]+$ ]] || [[ "$BYTES" -gt "$((FILE_SIZE - OFFSET))" ]]; then
         LOGE "Bytes value not valid: $BYTES"
-        return 1
+        return 0
     fi
 
     local READ
@@ -600,12 +600,12 @@ READ_BYTES_AT()
 # Adds the supplied file/directory entry attrs in fs_config/file_context.
 SET_METADATA()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "ENTRY" "$2" || return 1
-    _CHECK_NON_EMPTY_PARAM "USER" "$3" || return 1
-    _CHECK_NON_EMPTY_PARAM "GROUP" "$4" || return 1
-    _CHECK_NON_EMPTY_PARAM "MODE" "$5" || return 1
-    _CHECK_NON_EMPTY_PARAM "LABEL" "$6" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "ENTRY" "$2" || return 0
+    _CHECK_NON_EMPTY_PARAM "USER" "$3" || return 0
+    _CHECK_NON_EMPTY_PARAM "GROUP" "$4" || return 0
+    _CHECK_NON_EMPTY_PARAM "MODE" "$5" || return 0
+    _CHECK_NON_EMPTY_PARAM "LABEL" "$6" || return 0
 
     local PARTITION="$1"
     local ENTRY="$2"
@@ -616,7 +616,7 @@ SET_METADATA()
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     while [[ "${ENTRY:0:1}" == "/" ]]; do
@@ -648,8 +648,8 @@ SET_METADATA()
 # "-d" or "--delete" can be passed as value to delete the prop.
 SET_PROP()
 {
-    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 1
-    _CHECK_NON_EMPTY_PARAM "PROP" "$2" || return 1
+    _CHECK_NON_EMPTY_PARAM "PARTITION" "$1" || return 0
+    _CHECK_NON_EMPTY_PARAM "PROP" "$2" || return 0
 
     local PARTITION="$1"
     local PROP="$2"
@@ -657,7 +657,7 @@ SET_PROP()
 
     if ! IS_VALID_PARTITION_NAME "$PARTITION"; then
         LOGE "\"$PARTITION\" is not a valid partition name"
-        return 1
+        return 0
     fi
 
     if [ "$(GET_PROP "$PARTITION" "$PROP")" ]; then

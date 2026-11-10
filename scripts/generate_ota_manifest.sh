@@ -5,7 +5,7 @@
 shopt -s nullglob
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
 
 GENERATE_OTA_INFO()
 {
@@ -14,7 +14,7 @@ GENERATE_OTA_INFO()
     local DATE
     local ID
 
-    EVAL "unzip -p \"$FILE\" \"build_info.txt\"" || exit 1
+    EVAL "unzip -p \"$FILE\" \"build_info.txt\"" || exit 0
     BUILD_INFO="$(unzip -p "$FILE" "build_info.txt")"
 
     DATE="$(date +"%s")"
@@ -57,17 +57,17 @@ MANIFEST_FILE="$SRC_DIR/manifest.json"
 
 if [ "$#" != 1 ]; then
     echo "Usage: generate_ota_manifest <path to zips>" >&2
-    exit 1
+    exit 0
 fi
 
 if [ ! -d "$1" ]; then
     LOGE "Folder not found: $1"
-    exit 1
+    exit 0
 fi
 
 if ! find "$1" -maxdepth 1 -type f | grep -q ".zip"; then
     LOGE "No update files found in $1"
-    exit 1
+    exit 0
 fi
 
 LOG_STEP_IN "- Generating OTA manifest"

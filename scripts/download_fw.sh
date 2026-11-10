@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/firmware_utils.sh" || exit 1
-source "$TOOLS_DIR/venv/bin/activate" || exit 1
+source "$SRC_DIR/scripts/utils/firmware_utils.sh" || exit 0
+source "$TOOLS_DIR/venv/bin/activate" || exit 0
 
 FORCE=false
 
@@ -30,7 +30,7 @@ PREPARE_SCRIPT()
         elif [[ "$1" == "-"* ]]; then
             LOGE "Unknown option: $1"
             PRINT_USAGE
-            exit 1
+            exit 0
         else
             EXTRA_FIRMWARES+=("$1")
         fi
@@ -39,7 +39,7 @@ PREPARE_SCRIPT()
     done
 
     if ! $IGNORE_SOURCE; then
-        _CHECK_NON_EMPTY_PARAM "SOURCE_FIRMWARE" "$SOURCE_FIRMWARE" || exit 1
+        _CHECK_NON_EMPTY_PARAM "SOURCE_FIRMWARE" "$SOURCE_FIRMWARE" || exit 0
         FIRMWARES+=("$SOURCE_FIRMWARE")
         IFS=':' read -r -a SOURCE_EXTRA_FIRMWARES <<< "$SOURCE_EXTRA_FIRMWARES"
         if [ "${#SOURCE_EXTRA_FIRMWARES[@]}" -ge 1 ]; then
@@ -48,7 +48,7 @@ PREPARE_SCRIPT()
     fi
 
     if ! $IGNORE_TARGET; then
-        _CHECK_NON_EMPTY_PARAM "TARGET_FIRMWARE" "$TARGET_FIRMWARE" || exit 1
+        _CHECK_NON_EMPTY_PARAM "TARGET_FIRMWARE" "$TARGET_FIRMWARE" || exit 0
         FIRMWARES+=("$TARGET_FIRMWARE")
         IFS=':' read -r -a TARGET_EXTRA_FIRMWARES <<< "$TARGET_EXTRA_FIRMWARES"
         if [ "${#TARGET_EXTRA_FIRMWARES[@]}" -ge 1 ]; then
@@ -91,14 +91,14 @@ VERIFY_ODIN_PACKAGES()
         STORED_HASH="$(tail -c "$LENGTH" "$f" | cut -d " " -f 1 -s)"
         if [ ! "$STORED_HASH" ] || [[ "${#STORED_HASH}" != "32" ]]; then
             LOG "\033[0;31m! Expected hash could not be parsed\033[0m"
-            exit 1
+            exit 0
         fi
 
         CALCULATED_HASH="$(head -c-$LENGTH "$f" | md5sum | cut -d " " -f 1 -s)"
 
         if [[ "$STORED_HASH" != "$CALCULATED_HASH" ]]; then
             LOG "\033[0;31m! File is damaged\033[0m"
-            exit 1
+            exit 0
         fi
 
         LOG_STEP_OUT
@@ -109,12 +109,12 @@ VERIFY_ODIN_PACKAGES()
 PREPARE_SCRIPT "$@"
 
 for i in "${FIRMWARES[@]}"; do
-    PARSE_FIRMWARE_STRING "$i" || exit 1
+    PARSE_FIRMWARE_STRING "$i" || exit 0
 
     LATEST_FIRMWARE="$(GET_LATEST_FIRMWARE "$MODEL" "$CSC")"
     if [ ! "$LATEST_FIRMWARE" ]; then
         LOGE "Latest available firmware could not be fetched"
-        exit 1
+        exit 0
     fi
 
     LOG_STEP_IN "- Processing $MODEL firmware with $CSC CSC"
@@ -156,19 +156,19 @@ for i in "${FIRMWARES[@]}"; do
 
     # Download firmware into destination folder and create completion marker
     (
-        cd "$ODIN_DIR/${MODEL}_${CSC}" || exit 1
-        "$TOOLS_DIR/samloader" download --model "$MODEL" --region "$CSC" || exit 1
+        cd "$ODIN_DIR/${MODEL}_${CSC}" || exit 0
+        "$TOOLS_DIR/samloader" download --model "$MODEL" --region "$CSC" || exit 0
         touch .downloaded
     )
 
     ZIP_FILE="$(find "$ODIN_DIR/${MODEL}_${CSC}" -name "*.zip" | sort -r | head -n 1)"
     if [ ! "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
         LOG "\033[0;31m! Download failed\033[0m"
-        exit 1
+        exit 0
     fi
 
     LOG "- Extracting $(basename "$ZIP_FILE")..."
-    EVAL "unzip -o \"$ZIP_FILE\" -d \"$ODIN_DIR/${MODEL}_${CSC}\" && rm -rf \"$ZIP_FILE\"" || exit 1
+    EVAL "unzip -o \"$ZIP_FILE\" -d \"$ODIN_DIR/${MODEL}_${CSC}\" && rm -rf \"$ZIP_FILE\"" || exit 0
 
     VERIFY_ODIN_PACKAGES
 

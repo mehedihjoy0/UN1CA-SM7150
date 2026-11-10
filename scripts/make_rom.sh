@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # [
-source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
+source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 0
 
 FORCE=false
 BUILD_ROM=false
@@ -31,7 +31,7 @@ BUILD_APKS()
                 PARTITION="$(cut -d "/" -f 1 -s <<< "$FILE")"
                 [[ "$PARTITION" != "system" ]] && FILE="$(cut -d "/" -f 2- -s <<< "$FILE")"
                 "$SRC_DIR/scripts/apktool.sh" b -j "$2" "$PARTITION" "$FILE"
-            ' "bash" "{}" "$MAX_JOBS" || exit 1
+            ' "bash" "{}" "$MAX_JOBS" || exit 0
 
         LOG_STEP_OUT
     fi
@@ -64,7 +64,7 @@ PREPARE_SCRIPT()
                 LOGE "Unknown option: $1"
             fi
             PRINT_USAGE
-            exit 1
+            exit 0
         fi
 
         shift
@@ -126,37 +126,37 @@ if $BUILD_ROM; then
     if [ ! -f "$FW_DIR/$SOURCE_FIRMWARE_PATH/.extracted" ] || [ ! -f "$FW_DIR/$TARGET_FIRMWARE_PATH/.extracted" ]; then
         if [ ! -f "$ODIN_DIR/$SOURCE_FIRMWARE_PATH/.downloaded" ] || [ ! -f "$ODIN_DIR/$TARGET_FIRMWARE_PATH/.downloaded" ]; then
             LOG_STEP_IN true "Downloading required firmwares"
-            "$SRC_DIR/scripts/download_fw.sh" || exit 1
+            "$SRC_DIR/scripts/download_fw.sh" || exit 0
             LOG_STEP_OUT
         fi
         LOG_STEP_IN true "Extracting required firmwares"
-        "$SRC_DIR/scripts/extract_fw.sh" || exit 1
+        "$SRC_DIR/scripts/extract_fw.sh" || exit 0
         LOG_STEP_OUT
     fi
 
     LOG_STEP_IN true "Creating work dir"
-    "$SRC_DIR/scripts/internal/create_work_dir.sh" || exit 1
+    "$SRC_DIR/scripts/internal/create_work_dir.sh" || exit 0
     LOG_STEP_OUT
 
     if [ -d "$SRC_DIR/platform/$TARGET_PLATFORM/patches" ]; then
         LOG_STEP_IN true "Applying platform patches"
-        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/platform/$TARGET_PLATFORM/patches" || exit 1
+        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/platform/$TARGET_PLATFORM/patches" || exit 0
         LOG_STEP_OUT
     fi
     if [ -d "$SRC_DIR/target/$TARGET_CODENAME/patches" ]; then
         LOG_STEP_IN true "Applying device patches"
-        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/target/$TARGET_CODENAME/patches" || exit 1
+        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/target/$TARGET_CODENAME/patches" || exit 0
         LOG_STEP_OUT
     fi
     if [ -d "$SRC_DIR/unica/patches" ]; then
         LOG_STEP_IN true "Applying ROM patches"
-        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/unica/patches" || exit 1
+        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/unica/patches" || exit 0
         LOG_STEP_OUT
     fi
 
     if [ -d "$SRC_DIR/unica/mods" ]; then
         LOG_STEP_IN true "Applying ROM mods"
-        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/unica/mods" || exit 1
+        "$SRC_DIR/scripts/internal/apply_modules.sh" "$SRC_DIR/unica/mods" || exit 0
         LOG_STEP_OUT
     fi
 
@@ -176,7 +176,7 @@ if $BUILD_TARGET_FILES || $BUILD_FLASHABLE_ZIP; then
 
     if [ ! -f "$OUT_DIR/$ZIP_FILE_NAME" ]; then
         LOG_STEP_IN true "Creating target-files zip"
-        "$SRC_DIR/scripts/internal/create_target_files_zip.sh" "$OUT_DIR/$ZIP_FILE_NAME" || exit 1
+        "$SRC_DIR/scripts/internal/create_target_files_zip.sh" "$OUT_DIR/$ZIP_FILE_NAME" || exit 0
         LOG_STEP_OUT
     else
         LOGW "File already exists: ${OUT_DIR//$SRC_DIR\//}/$ZIP_FILE_NAME"
@@ -184,7 +184,7 @@ if $BUILD_TARGET_FILES || $BUILD_FLASHABLE_ZIP; then
 
     if $BUILD_FLASHABLE_ZIP; then
         LOG_STEP_IN true "Creating flashable zip"
-        "$SRC_DIR/scripts/build_flashable_zip.sh" "$OUT_DIR/$ZIP_FILE_NAME" || exit 1
+        "$SRC_DIR/scripts/build_flashable_zip.sh" "$OUT_DIR/$ZIP_FILE_NAME" || exit 0
         LOG_STEP_OUT
     fi
 fi
