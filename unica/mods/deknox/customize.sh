@@ -595,6 +595,11 @@ SMALI_PATCH "system" "system/framework/framework.jar" \
 APPLY_PATCH "system" "system/framework/services.jar" \
     "$MODPATH/blockchain/services.jar/0001-Nuke-BlockchainTZService.patch"
 
+# Patch isCompromisedDevice check
+SMALI_PATCH "system" "system/priv-app/SecureFolder/SecureFolder.apk" \
+    "smali/com/samsung/knox/securefolder/provisioning/setup/viewmodel/WelcomeViewModel.smali" "return" \
+    "isCompromisedDevice()Z" "false"
+
 # TODO get rid of the following features
 # SEC_PRODUCT_FEATURE_KNOX_SUPPORT_UCS
 # SEC_PRODUCT_FEATURE_FRAMEWORK_SUPPORT_MOBILE_PAYMENT
