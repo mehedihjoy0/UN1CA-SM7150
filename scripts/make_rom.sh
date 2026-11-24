@@ -172,7 +172,7 @@ if $BUILD_TARGET_FILES || $BUILD_FLASHABLE_ZIP; then
     else
         ZIP_FILE_NAME+="$ROM_VERSION"
     fi
-    ZIP_FILE_NAME+="-target_files.zip"
+    ZIP_FILE_NAME+="-target_files${BUILD_TYPE}.zip"
 
     if [ ! -f "$OUT_DIR/$ZIP_FILE_NAME" ]; then
         LOG_STEP_IN true "Creating target-files zip"
