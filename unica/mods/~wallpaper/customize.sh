@@ -41,14 +41,14 @@ ENCODE_MP4()
     local FILE="$1"
     local FILE_PATH
     local FILE_NAME
-    local RES="-1:2400"
+    local RES="-2:2400"
     local CMD
 
     FILE_PATH="$(dirname "$FILE")"
     FILE_NAME="$(basename "$FILE")"
 
     if $TARGET_COMMON_SUPPORT_DYN_RESOLUTION_CONTROL; then
-        RES="1440:-1"
+        RES="1440:-2"
     fi
 
     LOG "- Encoding $FILE_NAME"
@@ -56,10 +56,10 @@ ENCODE_MP4()
     CMD="ffmpeg"
     CMD+=" -i \"$FILE_PATH/$FILE_NAME\""
     CMD+=" -c:v libx264 -c:a copy"
-    CMD+=" -pix_fmt yuv420p -crf 18 -g 1"
-    CMD+=" -preset veryslow -tune zerolatency"
+    CMD+=" -pix_fmt yuv420p -crf 18"
+    CMD+=" -preset ultrafast "
     CMD+=" -movflags use_metadata_tags -map_metadata 0"
-    CMD+=" -vf \"fps=60,scale=$RES,setsar=1:1\""
+    CMD+=" -vf \"fps=60,scale=$RES:flags=fast_bilinear,setsar=1\""
     CMD+=" -video_track_timescale 360000 -movie_timescale 90000"
     CMD+=" \"$FILE_PATH/temp.mp4\""
 
@@ -80,9 +80,6 @@ done
 for f in "$APKTOOL_DIR/system/priv-app/wallpaper-res/wallpaper-res.apk/res/raw/video_"*.mp4; do
     ENCODE_MP4 "$f"
 done
-LOG "- Downloading latest Samsung Wallpaper app"
-DOWNLOAD_FILE "$(GET_GALAXY_STORE_DOWNLOAD_URL "000008552712")" \
-    "$WORK_DIR/system/system/priv-app/SpriteWallpaper/SpriteWallpaper.apk"
 APPLY_PATCH "system" "system/priv-app/SpriteWallpaper/SpriteWallpaper.apk" \
     "$MODPATH/SpriteWallpaper.apk/0001-Force-Paradigm-wallpapers-motion-animator.patch"
 APPLY_PATCH "system" "system/priv-app/SpriteWallpaper/SpriteWallpaper.apk" \
